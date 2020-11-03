@@ -1262,8 +1262,6 @@ function drawInventory() {
             if(!challenges["noEquipment"].inProgress) {
               inv.removeButton("equip " + item)
 
-  						quests_list["misc"]["noEquipment"].didEquip = true
-
   						var i = armor_tags.indexOf(item)
   						var item_stats = inventory[item]
   						if (item_stats.type == 'helmet') {
@@ -2679,8 +2677,8 @@ var main = function() {
 						let ydif = support["meteor"].meteors[i].y - team[0].y
 						angle = Math.atan2(ydif, xdif)
 
-						support["meteor"].meteors[i].x += 100*Math.cos(angle)
-						support["meteor"].meteors[i].y += 100*Math.sin(angle)
+						support["meteor"].meteors[i].x -= 100*Math.cos(angle)
+						support["meteor"].meteors[i].y -= 100*Math.sin(angle)
 					}
 				} else if(support["meteor"].meteors[i].radius > 128){
 					support["meteor"].meteors[i].radius = 0
@@ -2784,6 +2782,9 @@ var main = function() {
 										y: enemies[closest_enemy].y})
 			}
 			let droproll = 1000*Math.random()
+      if(enemies[closest_enemy].mega == true) {
+        droproll -= 50
+      }
 			let item_dropped = ""
 			if(droproll < 50 + (currentArea - 5)*50 && currentArea >= 5) {
 				roll = Math.floor(6*Math.random())
@@ -2832,6 +2833,7 @@ var main = function() {
 				}
 			}
 			if(enemies[closest_enemy].mega) {
+        let droproll = 1000*Math.random()
 				if(droproll < 25) {
 					item_dropped = "wooden ring"
 				}
@@ -2877,7 +2879,13 @@ var main = function() {
 				} else {
 					inventory[item_dropped].owned += loot_amount
 				}
-				messages.push({text: enemies[closest_enemy].species + " dropped a " + item_dropped, timeout: Date.now()/1000 + 3})
+        let word, s
+        if(loot_amount == 1) {
+          word = "a "
+        } else if(loot_amount == 2){
+          word = "two "
+        }
+				messages.push({text: enemies[closest_enemy].species + " dropped " + word + item_dropped, timeout: Date.now()/1000 + 3})
 			}
 			enemies.splice(closest_enemy, 1)
 
@@ -2885,7 +2893,7 @@ var main = function() {
 				currentStage += 1
 				if (currentStage > highestStages[currentArea - 1]) {
 					highestStages[currentArea - 1] = currentStage
-					rebirth_points += Math.floor(1.5*currentArea*(currentStage - 1))
+					rebirth_points += Math.floor(1.5*currentArea*(currentStage - 1)**1.35)
 
 					let stage_names = Object.keys(quests_list)
 					let current_stage_name = stage_names[currentArea - 1]
@@ -2987,7 +2995,7 @@ var main = function() {
 		if(in_totem_range) {
 			speed_bonus = 1.5
 		}
-    if(support["chamber"].radius < 25*support["chamber"].owned) {
+    if(support["chamber"].owned && support["chamber"].radius < 50*support["chamber"].owned + 25) {
       support["chamber"].radius += support["chamber"].owned / 10
     }
 
@@ -3211,7 +3219,7 @@ var main = function() {
       ydif = Math.abs(enemies[i].y - team[0].y)
       dist = Math.sqrt(xdif*xdif + ydif*ydif)
       if(dist < support["chamber"].radius) {
-        slow_multiplier = 1 - .03*(support["chamber"].level + 1)
+        slow_multiplier = 1 - .05*(support["chamber"].level + 1)
       }
 
 			if(closest_dist > 100) {
