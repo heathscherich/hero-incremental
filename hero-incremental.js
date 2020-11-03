@@ -740,6 +740,9 @@ function loadArea(area) {
   if(challenges["1HP"].completed) {
     team[0].health *= 10
   }
+  if(challenges["1HP"].inProgress) {
+    team[0].health = 1
+  }
 
 	n = 0
 	for(i=1; i<team.length; i++) {
