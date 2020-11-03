@@ -1711,9 +1711,9 @@ function drawBuildingsScreen() {
 
 			if(structures["hall"].halls.length > 0) {
 				buildings.addButton("upgrade hall", "Upgrade", "14px Arial", textColor, 350, 185, function() {
-					if(resources["crystal"] >= 100 * 2**(structures["hall"].level + 2) && resources["stone"] >= 100 * 2**(structures["hall"].level + 2)) {
-						resources["crystal"] -= 100 * 2**(structures["hall"].level + 2)
-            resources["stone"] -= 100 * 2**(structures["hall"].level + 2)
+					if(resources["crystal"] >= 1000 * 2**(structures["hall"].level + 2) && resources["stone"] >= 1000 * 2**(structures["hall"].level + 2)) {
+						resources["crystal"] -= 1000 * 2**(structures["hall"].level + 2)
+            resources["stone"] -= 1000 * 2**(structures["hall"].level + 2)
 						structures["hall"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1722,8 +1722,8 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade hall")
 				ctx.font = "14px Arial"
-				ctx.fillText(100 * 2**(structures["hall"].level + 2) + " Crystal", 350, 218)
-				ctx.fillText(100 * 2**(structures["hall"].level + 2) + " Stone", 350, 230)
+				ctx.fillText(1000 * 2**(structures["hall"].level + 2) + " Crystal", 350, 218)
+				ctx.fillText(1000 * 2**(structures["hall"].level + 2) + " Stone", 350, 230)
 			}
 		}
 	}
@@ -3125,7 +3125,7 @@ var main = function() {
           team[i].x += movex
           team[i].y += movey
         } else {
-          team[i].health += 1.65**(structures["hall"].level)
+          team[i].health += 8*1.65**(structures["hall"].level)
           if(team[i].health > total_health) {
             team[i].health = total_health
           }
