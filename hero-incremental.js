@@ -629,9 +629,18 @@ if(savefile != undefined) {
       radius: 0
     }
   }
+  if(templeRewards["ring"] == 2) {
+    templeRewards["ring"] == true
+  } else {
+    templeRewards["ring"] == false
+  }
+  if(templeRewards["aura"] == undefined) {
+    templeRewards["aura"] = false
+  }
 	if(currentStage == undefined) {
 		currentStage = 1
 	}
+
 
 	for(i=0; i<highestStages.length; i++) {
 		if(highestStages[i] == 0) {
@@ -2407,6 +2416,14 @@ function drawStats() {
                 radius: 0
               }
             }
+            if(templeRewards["ring"] == 2) {
+              templeRewards["ring"] == true
+            } else {
+              templeRewards["ring"] == false
+            }
+            if(templeRewards["aura"] == undefined) {
+              templeRewards["aura"] = false
+            }
             if(challenges["noEquipment"].completed) {
           		baseBonus = 3
 
@@ -2537,7 +2554,7 @@ function drawTemple() {
           currentPage = "battle"
         }
       }, 150, 40)
-      temple.addButton("aggroHero", "Aggro Hero", "14px Arial", textColor, 10, 200, function() {
+      temple.addButton("aggroHero", "Aggro Hero", "14px Arial", textColor, 200, 180, function() {
         if(!challenges["aggroHero"].completed) {
           challenges["aggroHero"].inProgress = true
 
@@ -2546,7 +2563,7 @@ function drawTemple() {
           currentPage = "battle"
         }
       }, 150, 40)
-      temple.addButton("noEquipment", "Punches", "14px Arial", textColor, 10, 390, function() {
+      temple.addButton("noEquipment", "Punches", "14px Arial", textColor, 390, 180, function() {
         if(!challenges["noEquipment"].completed) {
           challenges["noEquipment"].inProgress = true
 
