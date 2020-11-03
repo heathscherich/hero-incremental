@@ -588,6 +588,7 @@ if(savefile != undefined) {
 
 	if(textColor == undefined) {
 		textColor = "black"
+    document.body.style.backgroundColor = "white"
 	} else if(textColor == "white") {
 		document.body.style.backgroundColor = "black"
 	} else if(textColor == "black") {
@@ -857,6 +858,14 @@ function rebirthResets() {
 		inventory["gold ring"] = gr
 	}
 
+  if(challenges["1HP"].inProgress) {
+    let health = 1
+  } else if(challenges["1HP"].completed) {
+    let health = 1000
+  } else {
+    let health = 100
+  }
+
 	team = [{
 		name: "hero",
 		x: 350,
@@ -944,11 +953,20 @@ function templeResets() {
 		inventory["gold ring"] = gr
 	}
 
-  if(!challenges["1HP"].completed) {
-    let health = 100
-  } else {
-    let health = 1000
+  if(challenges["1HP"].inProgress) {
+    inventory["shortbow"] = Object.assign({}, drops["shortbow"])
+    inventory["shortbow"].owned = 1
+    inventory["shortbow"].level = 1
   }
+
+  if(challenges["1HP"].inProgress) {
+    let health = 1
+  } else if(challenges["1HP"].completed) {
+    let health = 1000
+  } else {
+    let health = 100
+  }
+
 	team = [{
 		name: "hero",
 		x: 350,
@@ -2348,6 +2366,7 @@ function drawStats() {
 
 						if(textColor == undefined) {
 							textColor = "black"
+              document.body.style.backgroundColor = "white"
 						} else if(textColor == "white") {
 							document.body.style.backgroundColor = "black"
 						} else if(textColor == "black") {
@@ -2462,7 +2481,7 @@ function drawTemple() {
 		temple.drawButton("close")
 
 		temple.addButton("ring", "Pillar: Gold Ring", "14px Arial", textColor, 10, 70, function() {
-			if(templeRewards["ring"] < 2) {
+			if(!templeRewards["ring"]) {
 				inventory["gold ring"] = Object.assign({}, drops["gold ring"])
 				inventory["gold ring"].owned = 1
 				inventory["gold ring"].level = 1
@@ -2474,7 +2493,7 @@ function drawTemple() {
 			}
 		}, 150, 40)
 		temple.addButton("aura", "Pillar: Warrior Aura", "14px Arial", textColor, 200, 70, function() {
-			if(templeRewards["aura"] == false) {
+			if(!templeRewards["aura"]) {
 				templeRewards["aura"] = true
 
 				templeResets()
@@ -2497,7 +2516,7 @@ function drawTemple() {
 		temple.drawButton("aura")
 		temple.drawButton("wisdom")
 
-    if(!templeRewards["allCompleted"]) {
+    if(!(templeRewards["ring"] && templeRewards["aura"] && templeRewards["wisdom"])) {
       ctx.font = "16px Arial"
   		ctx.fillStyle = textColor
   		ctx.fillText("Challenges: LOCKED", 10, 150)
