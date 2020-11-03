@@ -2407,6 +2407,13 @@ function drawStats() {
                 radius: 0
               }
             }
+            if(challenges["noEquipment"].completed) {
+          		baseBonus = 3
+
+          		team[0].attack = (baseBonus - 1)**9 + team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+          		team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+          		team[0].speed = 2 + (1.5 + (baseBonus - 1)**2)*(rebirth["hero"].level)
+          	}
 						if(currentStage == undefined) {
 							currentStage = 1
 						}
