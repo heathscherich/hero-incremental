@@ -2912,7 +2912,7 @@ var main = function() {
 						battle.drawButton("area " + highestArea)
 					}
           if(questStore["reset10"].toggled) {
-						loadZone(currentArea)
+						loadArea(currentArea)
 					}
 				}
 				for(i=0; i<structures["totem"].totems.length; i++) {
@@ -3145,7 +3145,7 @@ var main = function() {
           team[i].x += movex
           team[i].y += movey
         } else {
-          team[i].health += 8*1.65**(structures["hall"].level)
+          team[i].health += 16*1.85**(structures["hall"].level + 2)
           if(team[i].health > total_health) {
             team[i].health = total_health
           }
