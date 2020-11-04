@@ -920,16 +920,27 @@ function templeResets() {
 		housing[species_tags[i]].filled = 0
 		housing[species_tags[i]].level = 0
 	}
-	support = {
+  support = {
 		"meteor": {
 			meteors: [],
 			level: 0
 		},
-		"totem": {
-			totems: [],
-			level: 0
-		}
+		"chamber": {
+      owned: 0,
+      level: 0,
+      radius: 0
+    }
 	}
+  structures = {
+    "totem": {
+      totems: [],
+      level: 0
+    },
+    "hall": {
+      halls: [],
+      level: 0
+    }
+  }
 
 	resources["crystal"] = 0
 	resources["stone"] = 0
