@@ -629,7 +629,7 @@ if(savefile != undefined) {
       radius: 0
     }
   }
-  if(templeRewards["ring"] == 2) {
+  if(inventory["gold ring"]) {
     templeRewards["ring"] = true
   } else {
     templeRewards["ring"] = false
@@ -2428,7 +2428,7 @@ function drawStats() {
                 radius: 0
               }
             }
-            if(templeRewards["ring"] == 2) {
+            if(inventory["gold ring"]) {
               templeRewards["ring"] = true
             } else {
               templeRewards["ring"] = false
