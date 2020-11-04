@@ -728,18 +728,6 @@ function spawnEnemies() {
 
 function loadArea(area) {
 	if(area == 7) {
-    for(var i in challenges) {
-      if(challenges[i].inProgress) {
-        challenges[i].inProgress = false
-        challenges[i].completed = true
-
-        challenges[i].fastestTime = Date.now()/1000 - challenges[i].startTime
-
-        if(i == "noEquipment") {
-          baseBonus = 3
-        }
-      }
-    }
 		currentPage = "temple"
 		return
 	}
@@ -923,6 +911,9 @@ function templeResets() {
 	for(i=1; i<=highestArea; i++) {
 		battle.removeButton("area " + i)
 	}
+  if(battle.buttons["area 7"]) {
+    battle.removeButton("area 7")
+  }
 	bolts = []
 	highestArea = 1
 	currentArea = 1
@@ -1105,6 +1096,9 @@ function drawInfo() {
 			ctx.fillText("Highest: " + highestStages[i-1], 11 + 88*(i-1), 70)
 		}
 	}
+  if(battle.buttons["area 7"]) {
+    battle.drawButton("area 7")
+  }
 
 	ctx.fillText("Health " + Math.ceil(team[0].health), 10, 100)
 	ctx.fillStyle = "blue"
@@ -2525,6 +2519,10 @@ function drawStats() {
         challenges[currentChallenge].startTime = 0
 
         pageLoadChecker.stats = false
+
+        battle.addButton("area 7", "temple", "14px Arial", textColor, 9 + 88*6, 10, function(number) {
+          loadArea(7)
+        }, 75, 75)
         drawStats()
       }, 100, 25)
       stats.drawButton("quit")
@@ -2989,6 +2987,22 @@ var main = function() {
 						}, 75, 75)
 						battle.drawButton("area " + highestArea)
 					}
+
+          if(highestArea == 7) {
+            for(var i in challenges) {
+              if(challenges[i].inProgress) {
+                challenges[i].inProgress = false
+                challenges[i].completed = true
+
+                challenges[i].fastestTime = Date.now()/1000 - challenges[i].startTime
+
+                if(i == "noEquipment") {
+                  baseBonus = 3
+                }
+              }
+            }
+          }
+
           if(questStore["reset10"].toggled) {
 						loadArea(currentArea)
 					}
