@@ -799,7 +799,7 @@ function rebirthResets() {
 		quests_list["misc"]["time"].start = Date.now()/1000
 	}
 
-	for(i=1; i<highestArea; i++) {
+	for(i=1; i<=highestArea; i++) {
 		battle.removeButton("area " + i)
 	}
 	bolts = []
@@ -905,7 +905,7 @@ function templeResets() {
 	rebirth = Object.assign({}, rebirth_original)
 	rebirth_points = 0
 
-	for(i=1; i<highestArea; i++) {
+	for(i=1; i<=highestArea; i++) {
 		battle.removeButton("area " + i)
 	}
 	bolts = []
@@ -982,12 +982,13 @@ function templeResets() {
     inventory["shortbow"].level = 1
   }
 
+  let health
   if(challenges["1HP"].inProgress) {
-    let health = 1
+    health = 1
   } else if(challenges["1HP"].completed) {
-    let health = 1000
+    health = 1000
   } else {
-    let health = 100
+    health = 100
   }
 
 	team = [{
@@ -995,7 +996,7 @@ function templeResets() {
 		x: 350,
 		y: 600,
 		experience: 0,
-		health: 100,
+		health: health,
 		baseAttack: 1,
 		attack: (baseBonus - 1)**9 + 1,
 		baseDefence: 10,
@@ -2498,9 +2499,10 @@ function drawStats() {
       }
     }
     if(currentChallenge) {
-      stats.addButton("quit", "End Challenge", "14px Arial", textColor, function() {
+      stats.addButton("quit", "End Challenge", "14px Arial", textColor, 10, 250, function() {
         challenges[currentChallenge].inProgress = false
       })
+      stats.drawButton("quit")
     }
 	}
 	pageLoadChecker.stats = true
@@ -3206,24 +3208,15 @@ var main = function() {
 		for(i=0; i<enemies.length; i++) {
 			var closest_dist = 2000
 			var closest_enemy = 0
-      if(!challenges["aggroHero"].inProgress) {
-        for(j=0; j<team.length; j++){
-  				xdif = Math.abs(enemies[i].x - team[j].x)
-  				ydif = Math.abs(enemies[i].y - team[j].y)
-  				dist = Math.sqrt(xdif*xdif + ydif*ydif)
-  				if(dist < closest_dist) {
-  					closest_dist = dist
-  					closest_enemy = j
-  				}
-  			}
-      } else {
-        for(j=0; j<team.length; j++){
-  				xdif = Math.abs(enemies[i].x - team[0].x)
-  				ydif = Math.abs(enemies[i].y - team[0].y)
-  				closest_dist = Math.sqrt(xdif*xdif + ydif*ydif)
-					closest_enemy = 0
-  			}
-      }
+      for(j=0; j<team.length; j++){
+				xdif = Math.abs(enemies[i].x - team[j].x)
+				ydif = Math.abs(enemies[i].y - team[j].y)
+				dist = Math.sqrt(xdif*xdif + ydif*ydif)
+				if(dist < closest_dist) {
+					closest_dist = dist
+					closest_enemy = j
+				}
+			}
 
       let slow_multiplier = 1
       xdif = Math.abs(enemies[i].x - team[0].x)
@@ -3258,7 +3251,17 @@ var main = function() {
 				enemies[i].x += 2*Math.cos(enemies[i].trajectory.angle)/10
 				enemies[i].y += 2*Math.sin(enemies[i].trajectory.angle)/10
 			} else {
-				enemies[i].targetid = closest_enemy
+        if(!challenges["aggroHero"].inProgress) {
+  				enemies[i].targetid = closest_enemy
+        } else {
+          enemies[i].targetid = 0
+          closest_enemy = 0
+
+          xdif = Math.abs(enemies[i].x - team[0].x)
+  				ydif = Math.abs(enemies[i].y - team[0].y)
+  				dist = Math.sqrt(xdif*xdif + ydif*ydif)
+					closest_dist = dist
+        }
 
 				if (enemies[i].species == "beast") {
 					for(j=0; j<enemies.length; j++){
