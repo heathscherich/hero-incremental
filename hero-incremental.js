@@ -748,7 +748,7 @@ function loadArea(area) {
 	for(i=1; i<team.length; i++) {
 		team[i].x = 400 + 50*Math.cos(n*Math.PI)
 		team[i].y = 600 + 25*Math.ceil(n/2)
-		team[i].health = species[team[i].name].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10
+		team[i].health = species[team[i].name].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
 	}
 
 	for(i=0; i<structures["totem"].totems.length; i++) {
@@ -1023,9 +1023,9 @@ function drawTeam(team) {
 		ctx.font = "16px Arial"
 		ctx.fillText(species[team[i].name].symbol, team[i].x, team[i].y)
 
-		if(team[i].health < species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10) {
+		if(team[i].health < species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5) {
 			let width = ctx.measureText(species[team[i]["name"]].symbol).width
-			ratio = team[i].health/(species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10)
+			ratio = team[i].health/(species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5)
 			ctx.fillStyle = textColor
 			ctx.strokeRect(team[i].x - 40 + width/2, team[i].y - 30, 80, 8)
 			ctx.fillStyle = "blue"
@@ -2785,7 +2785,7 @@ var main = function() {
 				housing[name].filled += 1
 				messages.push({text: "A " + name + " joined you", timeout: Date.now()/1000 + 3})
 				team.push({name: name,
-										health: species[name].health * (1.5**rebirth["ally"].level) * (housing[name].level + 9)/10,
+										health: species[name].health * (1.5**rebirth["ally"].level) * (housing[name].level + 4)/5,
 										defence: species[name].defence,
 										cooldown: Date.now()/1000,
                     full: false,
@@ -3151,7 +3151,7 @@ var main = function() {
         }
       }
 
-      let total_health = species[team[i].name].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10
+      let total_health = species[team[i].name].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
       if(!team[i].full && team[i].health <= .8*total_health && closest_hall_dist < closest_dist) {
         xdif = structures["hall"].halls[closest_hall].x - team[i].x
   			ydif = structures["hall"].halls[closest_hall].y - team[i].y
@@ -3164,7 +3164,7 @@ var main = function() {
           team[i].x += movex
           team[i].y += movey
         } else {
-          team[i].health += 16*1.85**(structures["hall"].level + 2)
+          team[i].health += 25*1.85**(structures["hall"].level + 2)
           if(team[i].health > total_health) {
             team[i].health = total_health
           }
@@ -3186,7 +3186,7 @@ var main = function() {
   				team[i].y += movey
   			} else {
   				if(Date.now()/1000 > team[i].cooldown){
-  					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * (housing[team[i].name].level + 9)/10
+  					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
             if(in_hero_range) {
               damage *= 1.5
             }
@@ -3305,7 +3305,7 @@ var main = function() {
 							defence += team[0].torso ? inventory[team[0].torso].defence : 0
 							defence += team[0].legs ? inventory[team[0].legs].defence : 0
 						} else {
-							defence = team[closest_enemy].defence * (1.25**rebirth["ally"].level) * (housing[team[closest_enemy].name].level + 9)/10
+							defence = team[closest_enemy].defence * (1.25**rebirth["ally"].level) * (housing[team[closest_enemy].name].level + 4)/5
 						}
 						def_ratio = calc_def_ratio(defence)
 						damage = damage/(100/(100-def_ratio))
