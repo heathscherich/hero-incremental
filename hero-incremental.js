@@ -2499,9 +2499,12 @@ function drawStats() {
       }
     }
     if(currentChallenge) {
-      stats.addButton("quit", "End Challenge", "14px Arial", textColor, 10, 250, function() {
+      stats.addButton("quit", "End Challenge", "14px Arial", textColor, 10, 340, function() {
         challenges[currentChallenge].inProgress = false
-      })
+
+        pageLoadChecker.stats = false
+        drawStats()
+      }, 100, 25)
       stats.drawButton("quit")
     }
 	}
