@@ -1672,9 +1672,9 @@ function drawBuildingsScreen() {
 			ctx.fillText("Level: " + support["chamber"].level, 220, 115)
 
 			buildings.addButton("buy chamber", "Buy", "14px Arial", textColor, 235, 185, function() {
-				if(resources["crystal"] >= 8*10**(support["chamber"].owned + 3) && resources["leaf"] >= 8*10**(support["chamber"].owned + 3)) {
-					resources["crystal"] -= 8*10**(support["chamber"].owned + 3)
-          resources["leaf"] -= 8*10**(support["chamber"].owned + 3)
+				if(resources["crystal"] >= 8*10**(support["chamber"].owned + 2) && resources["leaf"] >= 8*10**(support["chamber"].owned + 2)) {
+					resources["crystal"] -= 8*10**(support["chamber"].owned + 2)
+          resources["leaf"] -= 8*10**(support["chamber"].owned + 2)
           support["chamber"].owned += 1
 
 					pageLoadChecker.buildings = false
@@ -1683,14 +1683,14 @@ function drawBuildingsScreen() {
 			}, 75, 20)
 			buildings.drawButton("buy chamber")
 			ctx.font = "14px Arial"
-			ctx.fillText(8*10**(support["chamber"].owned + 3) + " Crystal", 235, 218)
-			ctx.fillText(8*10**(support["chamber"].owned + 3) + " Leaf", 235, 232)
+			ctx.fillText(8*10**(support["chamber"].owned + 2) + " Crystal", 235, 218)
+			ctx.fillText(8*10**(support["chamber"].owned + 2) + " Leaf", 235, 232)
 
 			if(support["chamber"].owned > 0) {
 				buildings.addButton("upgrade chamber", "Upgrade", "14px Arial", textColor, 350, 185, function() {
-					if(resources["crystal"] >= 100 * 2**(support["chamber"].level + 2) && resources["leaf"] >= 100 * 2**(support["chamber"].level + 2)) {
-						resources["crystal"] -= 100 * 2**(support["chamber"].level + 2)
-            resources["leaf"] -= 100 * 2**(support["chamber"].level + 2)
+					if(resources["crystal"] >= 1000 * 2**(support["chamber"].level + 2) && resources["leaf"] >= 1000 * 2**(support["chamber"].level + 2)) {
+						resources["crystal"] -= 1000 * 2**(support["chamber"].level + 2)
+            resources["leaf"] -= 1000 * 2**(support["chamber"].level + 2)
 						support["chamber"].level += 1
 
 						pageLoadChecker.buildings = false
@@ -1699,8 +1699,8 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade chamber")
 				ctx.font = "14px Arial"
-				ctx.fillText(100 * 2**(support["chamber"].level + 2) + " Crystal", 350, 218)
-				ctx.fillText(100 * 2**(support["chamber"].level + 2) + " Leaf", 350, 232)
+				ctx.fillText(1000 * 2**(support["chamber"].level + 2) + " Crystal", 350, 218)
+				ctx.fillText(1000 * 2**(support["chamber"].level + 2) + " Leaf", 350, 232)
 			}
 		} else if(building == "hall") {
 			ctx.strokeRect(200, 50, 350, 200)
