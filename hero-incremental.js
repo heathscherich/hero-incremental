@@ -461,15 +461,21 @@ var rebirth_original = Object.assign({}, rebirth)
 var challenges = {
   "1HP": {
     inProgress: false,
-    completed: false
+    completed: false,
+    startTime: 0,
+    fastestTime: 0
   },
   "aggroHero": {
     inProgress: false,
-    completed: false
+    completed: false,
+    startTime: 0,
+    fastestTime: 0
   },
   "noEquipment": {
     inProgress: false,
-    completed: false
+    completed: false,
+    startTime: 0,
+    fastestTime: 0
   }
 }
 
@@ -665,6 +671,12 @@ if(savefile != undefined) {
 		inventory["iron ring"].level = 1
 	}
 	quests_list["misc"]["time"].start += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
+
+  for(i in challenges) {
+    if(challenges[i].inProgress) {
+      challenges[i].startTime += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
+    }
+  }
 }
 
 var then = Date.now(),
@@ -720,6 +732,9 @@ function loadArea(area) {
       if(challenges[i].inProgress) {
         challenges[i].inProgress = false
         challenges[i].completed = true
+
+        challenges[i].fastestTime = Date.now()/1000 - challenges[i].startTime
+
         if(i == "noEquipment") {
           baseBonus = 3
         }
@@ -2464,6 +2479,12 @@ function drawStats() {
 							inventory["iron ring"].level = 1
 						}
 						quests_list["misc"]["time"].start += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
+
+            for(i in challenges) {
+              if(challenges[i].inProgress) {
+                challenges[i].startTime += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
+              }
+            }
 					}
 					document.body.removeChild(elm)
 				}
@@ -2501,11 +2522,20 @@ function drawStats() {
     if(currentChallenge) {
       stats.addButton("quit", "End Challenge", "14px Arial", textColor, 10, 340, function() {
         challenges[currentChallenge].inProgress = false
+        challenges[currentChallenge].startTime = 0
 
         pageLoadChecker.stats = false
         drawStats()
       }, 100, 25)
       stats.drawButton("quit")
+
+      ctx.font = "16px Arial"
+      ctx.fillStyle = textColor
+      let delta = Date.now()/1000 - challenges[currentChallenge].startTime
+      let hr = Math.floor(delta/3600)
+      let min = Math.floor((delta - hr*3600)/60)
+      let sec = Math.round(delta - hr*3600 - min*60)
+      ctx.fillText("Runtime: " + hr + "h" + min + "m" + sec + "s", 120, 359)
     }
 	}
 	pageLoadChecker.stats = true
@@ -2563,38 +2593,62 @@ function drawTemple() {
   		ctx.fillText("Challenges: LOCKED", 10, 150)
     } else {
       temple.addButton("1HP", "Glass Cannon", "14px Arial", textColor, 10, 180, function() {
-        if(!challenges["1HP"].completed) {
-          challenges["1HP"].inProgress = true
+        challenges["1HP"].inProgress = true
+        challenges["1HP"].startTime = Date.now()/1000
 
-          templeResets()
-          spawnEnemies()
-          currentPage = "battle"
-        }
+        templeResets()
+        spawnEnemies()
+        currentPage = "battle"
       }, 150, 40)
       temple.addButton("aggroHero", "Aggro Hero", "14px Arial", textColor, 200, 180, function() {
-        if(!challenges["aggroHero"].completed) {
-          challenges["aggroHero"].inProgress = true
+        challenges["aggroHero"].inProgress = true
+        challenges["aggroHero"].startTime = Date.now()/1000
 
-          templeResets()
-          spawnEnemies()
-          currentPage = "battle"
-        }
+        templeResets()
+        spawnEnemies()
+        currentPage = "battle"
       }, 150, 40)
       temple.addButton("noEquipment", "Punches", "14px Arial", textColor, 390, 180, function() {
-        if(!challenges["noEquipment"].completed) {
-          challenges["noEquipment"].inProgress = true
+        challenges["noEquipment"].inProgress = true
+        challenges["noEquipment"].startTime = Date.now()/1000
 
-          templeResets()
-          spawnEnemies()
-          currentPage = "battle"
-        }
+        templeResets()
+        spawnEnemies()
+        currentPage = "battle"
       }, 150, 40)
       ctx.font = "16px Arial"
   		ctx.fillStyle = textColor
   		ctx.fillText("Challenges: ", 10, 150)
       temple.drawButton("1HP")
+      if(challenges["1HP"].completed) {
+        let hr = Math.floor(challenges["1HP"].fastestTime/3600)
+    		let min = Math.floor((challenges["1HP"].fastestTime - hr*3600)/60)
+    		let sec = Math.round(challenges["1HP"].fastestTime - hr*3600 - min*60)
+        ctx.fillText("Fastest Time: " + hr + "h" + min + "m" + sec + "s", 10, 240)
+        ctx.fillText("Goal: 2 Hours", 10, 260)
+      }
       temple.drawButton("aggroHero")
+      if(challenges["aggroHero"].completed) {
+        let hr = Math.floor(challenges["aggroHero"].fastestTime/3600)
+    		let min = Math.floor((challenges["aggroHero"].fastestTime - hr*3600)/60)
+    		let sec = Math.round(challenges["aggroHero"].fastestTime - hr*3600 - min*60)
+        ctx.fillText("Fastest Time: " + hr + "h" + min + "m" + sec + "s", 200, 240)
+        ctx.fillText("Goal: 2 Hours", 200, 260)
+      }
       temple.drawButton("noEquipment")
+      if(challenges["noEquipment"].completed) {
+        let hr = Math.floor(challenges["noEquipment"].fastestTime/3600)
+    		let min = Math.floor((challenges["noEquipment"].fastestTime - hr*3600)/60)
+    		let sec = Math.round(challenges["noEquipment"].fastestTime - hr*3600 - min*60)
+        ctx.fillText("Fastest Time: " + hr + "h" + min + "m" + sec + "s", 390, 240)
+        ctx.fillText("Goal: 2 Hours", 390, 260)
+      }
+    }
+
+    if(challenges["1HP"].fastestTime && challenges["1HP"].fastestTime <= 7200
+      && challenges["aggroHero"].fastestTime && challenges["aggroHero"].fastestTime <= 7200
+      && challenges["noEquipment"].fastestTime && challenges["noEquipment"].fastestTime <= 7200) {
+      ctx.fillText("Enter Temple | Temple Mode", 10, 300)
     }
 	}
 }
