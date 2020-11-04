@@ -1970,7 +1970,7 @@ function drawQuests() {
 			pageLoadChecker.quests = false
 		})
 		quests.addButton("buy speed", "10 Points", "14px Arial", textColor, 370, 356, function() {
-			if(questStore.quest_points >= 10) {
+			if(questStore.quest_points >= 10 && devmode < 5) {
 				quests.removeButton("buy speed")
 				questStore.quest_points -= 10
 				questStore["speed"].bought = true
@@ -2904,7 +2904,7 @@ var main = function() {
 				currentStage += 1
 				if (currentStage > highestStages[currentArea - 1]) {
 					highestStages[currentArea - 1] = currentStage
-					rebirth_points += Math.floor(1.5*currentArea*(currentStage - 1)**1.35)
+					rebirth_points += Math.floor(1.5*(currentStage - 1)*currentArea**2)
 
 					let stage_names = Object.keys(quests_list)
 					let current_stage_name = stage_names[currentArea - 1]
