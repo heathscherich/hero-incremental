@@ -630,9 +630,9 @@ if(savefile != undefined) {
     }
   }
   if(templeRewards["ring"] == 2) {
-    templeRewards["ring"] == true
+    templeRewards["ring"] = true
   } else {
-    templeRewards["ring"] == false
+    templeRewards["ring"] = false
   }
   if(templeRewards["aura"] == undefined) {
     templeRewards["aura"] = false
@@ -2418,9 +2418,9 @@ function drawStats() {
               }
             }
             if(templeRewards["ring"] == 2) {
-              templeRewards["ring"] == true
+              templeRewards["ring"] = true
             } else {
-              templeRewards["ring"] == false
+              templeRewards["ring"] = false
             }
             if(templeRewards["aura"] == undefined) {
               templeRewards["aura"] = false
