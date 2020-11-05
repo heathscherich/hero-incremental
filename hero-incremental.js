@@ -1075,6 +1075,17 @@ function drawInfo() {
 				loadArea(number)
 			}, 75, 75)
 		}
+    let inChallenge = false
+    for(var i in challenges) {
+      if(challenges[i].inProgress == true) {
+        inChallenge = true
+      }
+    }
+    if(!inChallenge && templeRewards("ring") && templeRewards("aura") && templeRewards("wisdom")) {
+      battle.addButton("area 7", "temple", "14px Arial", textColor, 9 + 88*6, 10, function(number) {
+        loadArea(7)
+      }, 75, 75)
+    }
 
 		battle.addButton("inventory", "Inventory", "14px Arial", textColor, 10, 180, function() {
 			currentPage = "inv"
@@ -2524,10 +2535,6 @@ function drawStats() {
         challenges[currentChallenge].startTime = 0
 
         pageLoadChecker.stats = false
-
-        battle.addButton("area 7", "temple", "14px Arial", textColor, 9 + 88*6, 10, function(number) {
-          loadArea(7)
-        }, 75, 75)
         drawStats()
       }, 100, 25)
       stats.drawButton("quit")
@@ -3184,7 +3191,11 @@ var main = function() {
       if(challenges["aggroHero"].completed) {
         for(j=0; j<enemies.length; j++) {
           if(enemies[j].targetid == 0) {
+            xdif = Math.abs(enemies[j].x - team[i].x)
+    				ydif = Math.abs(enemies[j].y - team[i].y)
+    				dist = Math.sqrt(xdif*xdif + ydif*ydif)
             closest_enemy = j
+            closest_dist = dist
           }
         }
       }
@@ -3311,7 +3322,7 @@ var main = function() {
       ydif = Math.abs(enemies[i].y - team[0].y)
       dist = Math.sqrt(xdif*xdif + ydif*ydif)
       if(dist < support["chamber"].radius) {
-        slow_multiplier = .8 - .075*support["chamber"].level
+        slow_multiplier = .85 - .065*support["chamber"].level
       }
 
 			if(closest_dist > 100) {
@@ -3367,7 +3378,7 @@ var main = function() {
 			}
 			if(enemies[i].targetid != undefined){
 				if(enemies[i].cooldown == undefined) {
-					enemies[i].cooldown = Date.now()/1000 + 1/(1.1**enemies[i].prestige)/devmode
+					enemies[i].cooldown = Date.now()/1000 + 1/slow_multiplier/(1.1**enemies[i].prestige)/devmode
 				}
 				xdif = Math.abs(enemies[i].x - team[closest_enemy].x)
 				ydif = Math.abs(enemies[i].y - team[closest_enemy].y)
