@@ -875,6 +875,10 @@ function rebirthResets() {
 
   if(challenges["1HP"].inProgress) {
     let health = 1
+
+    inventory["shortbow"] = Object.assign({}, drops["shortbow"])
+    inventory["shortbow"].owned = 1
+    inventory["shortbow"].level = 1
   } else if(challenges["1HP"].completed) {
     let health = 1000
   } else {
@@ -1723,8 +1727,8 @@ function drawBuildingsScreen() {
 			ctx.fillText("Level: " + structures["hall"].level, 220, 115)
 
 			buildings.addButton("buy hall", "Buy", "14px Arial", textColor, 235, 185, function() {
-				if(resources["crystal"] >= 2*10**(structures["hall"].halls.length + 3) && resources["stone"] >= 2*10**(structures["hall"].halls.length + 3)) {
-					resources["crystal"] -= 2*10**(structures["hall"].halls.length + 3)
+				if(resources["leaf"] >= 2*10**(structures["hall"].halls.length + 3) && resources["stone"] >= 2*10**(structures["hall"].halls.length + 3)) {
+					resources["leaf"] -= 2*10**(structures["hall"].halls.length + 3)
           resources["stone"] -= 2*10**(structures["hall"].halls.length + 3)
 					structures["hall"].halls.push({
 						x: 500*Math.random() + 150,
@@ -1737,13 +1741,13 @@ function drawBuildingsScreen() {
 			}, 75, 20)
 			buildings.drawButton("buy hall")
 			ctx.font = "14px Arial"
-			ctx.fillText(2*10**(structures["hall"].halls.length + 3) + " Crystal", 235, 218)
+			ctx.fillText(2*10**(structures["hall"].halls.length + 3) + " Leaf", 235, 218)
       ctx.fillText(2*10**(structures["hall"].halls.length + 3) + " Stone", 235, 230)
 
 			if(structures["hall"].halls.length > 0) {
 				buildings.addButton("upgrade hall", "Upgrade", "14px Arial", textColor, 350, 185, function() {
-					if(resources["crystal"] >= 1000 * 2**(structures["hall"].level + 2) && resources["stone"] >= 1000 * 2**(structures["hall"].level + 2)) {
-						resources["crystal"] -= 1000 * 2**(structures["hall"].level + 2)
+					if(resources["leaf"] >= 1000 * 2**(structures["hall"].level + 2) && resources["stone"] >= 1000 * 2**(structures["hall"].level + 2)) {
+						resources["leaf"] -= 1000 * 2**(structures["hall"].level + 2)
             resources["stone"] -= 1000 * 2**(structures["hall"].level + 2)
 						structures["hall"].level += 1
 
@@ -1753,7 +1757,7 @@ function drawBuildingsScreen() {
 				}, 75, 20)
 				buildings.drawButton("upgrade hall")
 				ctx.font = "14px Arial"
-				ctx.fillText(1000 * 2**(structures["hall"].level + 2) + " Crystal", 350, 218)
+				ctx.fillText(1000 * 2**(structures["hall"].level + 2) + " Leaf", 350, 218)
 				ctx.fillText(1000 * 2**(structures["hall"].level + 2) + " Stone", 350, 230)
 			}
 		}
@@ -3261,7 +3265,7 @@ var main = function() {
   				if(Date.now()/1000 > team[i].cooldown){
   					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
             if(in_hero_range) {
-              damage *= 1.5
+              damage *= 5
             }
   					var temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
   					def_ratio = calc_def_ratio(temp_def)
@@ -3294,7 +3298,7 @@ var main = function() {
       ydif = Math.abs(enemies[i].y - team[0].y)
       dist = Math.sqrt(xdif*xdif + ydif*ydif)
       if(dist < support["chamber"].radius) {
-        slow_multiplier = 1 - .05*(support["chamber"].level + 1)
+        slow_multiplier = .8 - .075*support["chamber"].level
       }
 
 			if(closest_dist > 100) {
