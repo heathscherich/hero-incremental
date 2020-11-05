@@ -1081,7 +1081,7 @@ function drawInfo() {
         inChallenge = true
       }
     }
-    if(!inChallenge && templeRewards("ring") && templeRewards("aura") && templeRewards("wisdom")) {
+    if(!inChallenge && templeRewards["ring"] && templeRewards["aura"] && templeRewards["wisdom"]) {
       battle.addButton("area 7", "temple", "14px Arial", textColor, 9 + 88*6, 10, function(number) {
         loadArea(7)
       }, 75, 75)
