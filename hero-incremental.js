@@ -890,7 +890,7 @@ function rebirthResets() {
 		x: 350,
 		y: 600,
 		experience: team[0].experience,
-		health: 100,
+		health: health,
 		baseAttack: team[0].baseAttack,
 		attack: team[0].attack,
 		baseDefence: team[0].baseDefence,
