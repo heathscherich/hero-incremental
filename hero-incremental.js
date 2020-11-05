@@ -3085,7 +3085,7 @@ var main = function() {
 			speed_bonus = 1.5
 		}
     if(support["chamber"].owned && support["chamber"].radius < 50*support["chamber"].owned + 25) {
-      support["chamber"].radius += support["chamber"].owned / 10
+      support["chamber"].radius += (support["chamber"].owned / 10)*devmode
     }
 
 		angle = Math.atan2(ydif, xdif)
@@ -3259,6 +3259,18 @@ var main = function() {
   				if(goalmove < movedist) {
   					movex = goalmove*Math.cos(angle)
   					movey = goalmove*Math.sin(angle)
+
+            if(Date.now()/1000 > team[i].cooldown){
+    					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
+              if(in_hero_range) {
+                damage *= 5
+              }
+    					var temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+    					def_ratio = calc_def_ratio(temp_def)
+    					damage = damage/(100/(100-def_ratio))
+    					enemies[closest_enemy].health -= damage
+    					team[i].cooldown = Date.now()/1000 + 1/speed_bonus/devmode
+    				}
   				}
   				team[i].x += movex
   				team[i].y += movey
