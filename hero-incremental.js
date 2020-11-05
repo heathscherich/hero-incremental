@@ -873,16 +873,17 @@ function rebirthResets() {
 		inventory["gold ring"] = gr
 	}
 
+  let heatlh
   if(challenges["1HP"].inProgress) {
-    let health = 1
+    health = 1
 
     inventory["shortbow"] = Object.assign({}, drops["shortbow"])
     inventory["shortbow"].owned = 1
     inventory["shortbow"].level = 1
   } else if(challenges["1HP"].completed) {
-    let health = 1000
+    health = 1000
   } else {
-    let health = 100
+    health = 100
   }
 
 	team = [{
