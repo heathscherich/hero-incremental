@@ -565,7 +565,7 @@ var messages = []
 
 var baseBonus = 1
 var rebirth_points = 0
-var highestStages = [ 1, 0, 0, 0, 0, 0 ]
+var highestStages = [ 1, 0, 0, 0, 0, 0, 0 ]
 
 var currentArea = 1,
 	highestArea = 1,
@@ -646,7 +646,9 @@ if(savefile != undefined) {
 	if(currentStage == undefined) {
 		currentStage = 1
 	}
-
+  if(devmode > 3.5) {
+    devmode = 3.5
+  }
 
 	for(i=0; i<highestStages.length; i++) {
 		if(highestStages[i] == 0) {
@@ -677,6 +679,30 @@ if(savefile != undefined) {
       challenges[i].startTime += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
     }
   }
+
+  if(templeRewards["templeMode"] == true) {
+    templeModeSave = localStorage.getItem("templeMode")
+    templeModeSave = JSON.parse(templeModeSave)
+    if(templeModeSave) {
+      currentStage = templeModeSave.currentStage
+      currentArea = templeModeSave.currentArea
+      housing = templeModeSave.housing
+      support = templeModeSave.support
+      structures = templeModeSave.structures
+      resources = templeModeSave.resources
+      highestStages = templeModeSave.highestStages
+      team = templeModeSave.team
+    }
+    for(i=0; i<highestStages.length; i++) {
+      if(highestStages[i] == 0) {
+        highestArea = i
+        break
+      }
+      if(i == highestStages.length - 1) {
+        highestArea = i + 1
+      }
+    }
+  }
 }
 
 var then = Date.now(),
@@ -685,52 +711,92 @@ var then = Date.now(),
 function spawnEnemies() {
 	enemies = []
 
-	let tot_noobs = Math.ceil(currentStage/3)
-	let num_noobs = 0
-	let species_index
-	let prestige = currentStage - 4 > 1 ? currentStage - 4 : 0
-	let mega
-	for(i=0; i<currentStage; i++){
-		mega = false
-		if(num_noobs < tot_noobs && currentStage > 1 && currentArea > 1) {
-			species_index = Math.floor((currentArea - 1)*Math.random())
-			num_noobs += 1
-		} else {
-			species_index =  currentArea - 1
-		}
-		let health = species[species_tags[species_index]].health*1.3**prestige
-		if(prestige) {
-			let roll = 1000*Math.random()
-			if(roll < 10) {
-				mega = true
-				species_index = currentArea - 1
-				health = 10*species[species_tags[species_index]].health*1.3**prestige
-			}
-		}
-		enemies.push({
-			species: species_tags[species_index],
-			element: elements_tags[Math.floor(3*Math.random())],
-			x: 100 + 500*Math.random(),
-			y: 100 + 200*Math.random(),
-			trajectory: {
-				angle: 2*Math.PI*Math.random(),
-				turning: 0
-			},
-			targetid: undefined,
-			cooldown: undefined,
-			total_health: health,
-			health: health,
-			prestige: prestige,
-			mega: mega
-		})
-	}
+  let species_index
+  let prestige
+  if(!templeRewards["inTemple"]) {
+    let tot_noobs = Math.ceil(currentStage/3)
+    let num_noobs = 0
+    if(templeRewards["templeMode"]) {
+      prestige = currentStage
+    } else {
+      prestige = currentStage - 4 > 1 ? currentStage - 4 : 0
+    }
+  	let mega
+  	for(i=0; i<currentStage; i++){
+  		mega = false
+  		if(num_noobs < tot_noobs && currentStage > 1 && currentArea > 1) {
+  			species_index = Math.floor((currentArea - 1)*Math.random())
+  			num_noobs += 1
+  		} else {
+  			species_index = currentArea - 1
+  		}
+      let health
+      if(templeRewards["templeMode"]) {
+        health = species[species_tags[species_index]].health*10
+        health = health*1.3**prestige
+      } else {
+        health = species[species_tags[species_index]].health*1.3**prestige
+      }
+
+  		if(prestige) {
+  			let roll = 1000*Math.random()
+  			if(roll < 10) {
+  				mega = true
+  				species_index = currentArea - 1
+  				health = 10*health
+  			}
+  		}
+  		enemies.push({
+  			species: species_tags[species_index],
+  			element: elements_tags[Math.floor(3*Math.random())],
+  			x: 100 + 500*Math.random(),
+  			y: 100 + 200*Math.random(),
+  			trajectory: {
+  				angle: 2*Math.PI*Math.random(),
+  				turning: 0
+  			},
+  			targetid: undefined,
+  			cooldown: undefined,
+  			total_health: health,
+  			health: health,
+  			prestige: prestige,
+  			mega: mega
+  		})
+  	}
+  } else if(templeRewards["inTemple"]){
+    prestige = currentStage + 7
+  	for(i=0; i<currentStage; i++){
+  		species_index = Math.floor((currentArea - 2)*Math.random())
+  		let health = 10*species[species_tags[species_index]].health*1.3**prestige
+  		enemies.push({
+  			species: species_tags[species_index],
+  			element: elements_tags[Math.floor(3*Math.random())],
+  			x: 100 + 500*Math.random(),
+  			y: 100 + 200*Math.random(),
+  			trajectory: {
+  				angle: 2*Math.PI*Math.random(),
+  				turning: 0
+  			},
+  			targetid: undefined,
+  			cooldown: undefined,
+  			total_health: health,
+  			health: health,
+  			prestige: prestige,
+  			mega: true
+  		})
+  	}
+  }
 }
 
 function loadArea(area) {
 	if(area == 7) {
-		currentPage = "temple"
-		return
-	}
+    if(!templeRewards["inTemple"]) {
+      currentPage = "temple"
+  		return
+    }
+	} else {
+    templeRewards["inTemple"] = false
+  }
 	if(area != currentArea) {
 		quests_list["misc"]["time"].start = Date.now()/1000
 	}
@@ -741,7 +807,7 @@ function loadArea(area) {
 	team[0].y = 600
 
   if(challenges["1HP"].completed) {
-    team[0].health *= 10
+    team[0].health = 1000
   }
   if(challenges["1HP"].inProgress) {
     team[0].health = 1
@@ -774,27 +840,54 @@ function loadArea(area) {
 	enemies.splice(0, enemies.length)
 	spawnEnemies()
 
-	quests_list["misc"]["time"].lastSaveDate = Date.now()/1000
-	savefile = {
-    challenges: challenges,
-		textColor: textColor,
-		currentStage: currentStage,
-		templeRewards: templeRewards,
-		questStore: questStore,
-		currentArea: currentArea,
-		devmode: devmode,
-		housing: housing,
-		support: support,
-    structures: structures,
-		rebirth_points: rebirth_points,
-		resources: resources,
-		highestStages: highestStages,
-		rebirth: rebirth,
-		quests_list: quests_list,
-		inventory: inventory,
-		team: team
-	}
-	localStorage.setItem("savefile", JSON.stringify(savefile))
+  if(templeRewards["templeMode"]) {
+    templeModeSave = {
+      currentStage: currentStage,
+      currentArea: currentArea,
+      devmode: devmode,
+      housing: housing,
+      support: support,
+      structures: structures,
+      resources: resources,
+      highestStages: highestStages,
+      team: team
+    }
+    localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
+
+    sf = localStorage.getItem("savefile")
+    sf = JSON.parse(sf)
+    sf.textColor = textColor
+    sf.templeRewards = templeRewards
+    sf.questStore = questStore
+    sf.devmode = devmode
+    sf.rebirth_points = rebirth_points
+    sf.rebirth = rebirth
+    sf.quests_list = quests_list
+    sf.inventory = inventory
+    localStorage.setItem("savefile", JSON.stringify(sf))
+  } else {
+  	quests_list["misc"]["time"].lastSaveDate = Date.now()/1000
+  	savefile = {
+      challenges: challenges,
+  		textColor: textColor,
+  		currentStage: currentStage,
+  		templeRewards: templeRewards,
+  		questStore: questStore,
+  		currentArea: currentArea,
+  		devmode: devmode,
+  		housing: housing,
+  		support: support,
+      structures: structures,
+  		rebirth_points: rebirth_points,
+  		resources: resources,
+  		highestStages: highestStages,
+  		rebirth: rebirth,
+  		quests_list: quests_list,
+  		inventory: inventory,
+  		team: team
+  	}
+  	localStorage.setItem("savefile", JSON.stringify(savefile))
+  }
 }
 
 function rebirthResets() {
@@ -809,7 +902,7 @@ function rebirthResets() {
 	highestArea = 1
 	currentArea = 1
 	currentStage = 1
-	highestStages = [ 1, 0, 0, 0, 0, 0 ]
+	highestStages = [ 1, 0, 0, 0, 0, 0, 0 ]
 	buildingsSubmenus.reset()
 
 	for(i=0; i<species_tags.length - 1; i++) {
@@ -873,7 +966,7 @@ function rebirthResets() {
 		inventory["gold ring"] = gr
 	}
 
-  let heatlh
+  let health
   if(challenges["1HP"].inProgress) {
     health = 1
 
@@ -905,6 +998,16 @@ function rebirthResets() {
 		legs: "",
 		rings: []
 	}]
+
+  if(templeRewards["templeMode"]) {
+    inventory = savefile.inventory
+
+    pageLoadChecker.inventory = false
+    drawInventory()
+    inv["buttons"]["craftAll"].action()
+    currentPage = "battle"
+    pageLoadChecker.inventory = false
+  }
 }
 
 function templeResets() {
@@ -923,7 +1026,7 @@ function templeResets() {
 	highestArea = 1
 	currentArea = 1
 	currentStage = 1
-	highestStages = [ 1, 0, 0, 0, 0, 0 ]
+	highestStages = [ 1, 0, 0, 0, 0, 0, 0 ]
 	buildingsSubmenus.reset()
 
 	for(i=0; i<species_tags.length - 1; i++) {
@@ -1081,8 +1184,9 @@ function drawInfo() {
         inChallenge = true
       }
     }
-    if(!inChallenge && templeRewards["ring"] && templeRewards["aura"] && templeRewards["wisdom"]) {
+    if(!inChallenge && !templeRewards["templeMode"] && templeRewards["ring"] && templeRewards["aura"] && templeRewards["wisdom"]) {
       battle.addButton("area 7", "temple", "14px Arial", textColor, 9 + 88*6, 10, function(number) {
+        templeRewards["inTemple"] = false
         loadArea(7)
       }, 75, 75)
     }
@@ -1996,11 +2100,14 @@ function drawQuests() {
 			pageLoadChecker.quests = false
 		})
 		quests.addButton("buy speed", "10 Points", "14px Arial", textColor, 370, 356, function() {
-			if(questStore.quest_points >= 10 && devmode < 5) {
+			if(questStore.quest_points >= 10 && devmode < 3.5) {
 				quests.removeButton("buy speed")
 				questStore.quest_points -= 10
 				questStore["speed"].bought = true
 				devmode *= 1.1
+        if(devmode >= 3.5) {
+          devmode = 3.5
+        }
 				pageLoadChecker.quests = false
 				drawQuests()
 			}
@@ -2195,7 +2302,7 @@ function drawQuests() {
 	let delta, hr, min, sec
 	if(!quests_list["misc"]["time"].completed) {
 		delta = Math.abs(Date.now()/1000 - quests_list["misc"]["time"].start)
-		hr = Math.floor((Date.now()/1000 - quests_list["misc"]["time"].start)/3600)
+		hr = Math.floor(delta/3600)
 		min = Math.floor((delta - hr*3600)/60)
 		sec = Math.round(delta - hr*3600 - min*60)
 	} else {
@@ -2214,7 +2321,14 @@ function drawQuests() {
 	ctx.lineTo(610, 352)
 	ctx.stroke()
 	ctx.font = "14px Arial"
-	quests.drawButton("buy speed")
+  if(devmode >= 3.5) {
+    ctx.strokeRect(370, 357, 75, 18)
+ 	  ctx.font = "14px Arial"
+ 	  ctx.fillStyle = textColor
+ 	  ctx.fillText("Bought!", 382, 370)
+  } else {
+    quests.drawButton("buy speed")
+  }
 	ctx.fillText("Additional 1.1x game speed", 450, 370)
 	if(questStore["craftAll"].bought) {
 	 ctx.strokeRect(370, 377, 75, 18)
@@ -2343,29 +2457,58 @@ function drawStats() {
 
 		stats.addButton("manualsave", "Save", "16px Arial", textColor, 10, 270, function() {
 			quests_list["misc"]["time"].lastSaveDate = Date.now()/1000
-			savefile = {
-        challenges: challenges,
-				textColor: textColor,
-				currentStage: currentStage,
-				templeRewards: templeRewards,
-				questStore: questStore,
-				currentArea: currentArea,
-				devmode: devmode,
-				housing: housing,
-				support: support,
-        structures: structures,
-				rebirth_points: rebirth_points,
-				resources: resources,
-				highestStages: highestStages,
-				rebirth: rebirth,
-				quests_list: quests_list,
-				inventory: inventory,
-				team: team
-			}
-			localStorage.setItem("savefile", JSON.stringify(savefile))
+
+      if(templeRewards["templeMode"]) {
+        templeModeSave = {
+          currentStage: currentStage,
+          currentArea: currentArea,
+          devmode: devmode,
+          housing: housing,
+          support: support,
+          structures: structures,
+          resources: resources,
+          highestStages: highestStages,
+          team: team
+        }
+        localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
+
+        sf = localStorage.getItem("savefile")
+        sf = JSON.parse(sf)
+        sf.textColor = textColor
+        sf.templeRewards = templeRewards
+        sf.questStore = questStore
+        sf.devmode = devmode
+        sf.rebirth_points = rebirth_points
+        sf.rebirth = rebirth
+        sf.quests_list = quests_list
+        sf.inventory = inventory
+        localStorage.setItem("savefile", JSON.stringify(sf))
+      } else {
+  			savefile = {
+          challenges: challenges,
+  				textColor: textColor,
+  				currentStage: currentStage,
+  				templeRewards: templeRewards,
+  				questStore: questStore,
+  				currentArea: currentArea,
+  				devmode: devmode,
+  				housing: housing,
+  				support: support,
+          structures: structures,
+  				rebirth_points: rebirth_points,
+  				resources: resources,
+  				highestStages: highestStages,
+  				rebirth: rebirth,
+  				quests_list: quests_list,
+  				inventory: inventory,
+  				team: team
+  			}
+  			localStorage.setItem("savefile", JSON.stringify(savefile))
+      }
+
 		}, 75, 25)
 		stats.addButton("exportsave", "Export", "16px Arial", textColor, 95, 270, function() {
-			let sf = btoa(JSON.stringify(savefile))
+			let sf = btoa(JSON.stringify({savefile: savefile, templeMode: templeModeSave}))
 			var file = new Blob([sf], {type: "text/plain"})
 			var elm = document.createElement("a")
 			var url = URL.createObjectURL(file)
@@ -2390,8 +2533,11 @@ function drawStats() {
 				reader.onload = function(e) {
 					var sf = e.target.result
 					sf = atob(sf)
-					localStorage.setItem("savefile", sf)
-					sf = JSON.parse(sf)
+          sf = JSON.parse(sf)
+          templeModeSave = sf["templeMode"]
+          sf = sf["savefile"]
+          localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
+					localStorage.setItem("savefile", JSON.stringify(sf))
 					if(sf != undefined) {
             challenges = sf.challenges
 						textColor = sf.textColor
@@ -2469,6 +2615,9 @@ function drawStats() {
           		team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
           		team[0].speed = 2 + (1.5 + (baseBonus - 1)**2)*(rebirth["hero"].level)
           	}
+            if(devmode > 3.5) {
+              devmode = 3.5
+            }
 						if(currentStage == undefined) {
 							currentStage = 1
 						}
@@ -2495,8 +2644,34 @@ function drawStats() {
                 challenges[i].startTime += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
               }
             }
+
+            if(templeRewards["templeMode"] == true) {
+              templeModeSave = localStorage.getItem("templeMode")
+              templeModeSave = JSON.parse(templeModeSave)
+              if(templeModeSave) {
+                currentStage = templeModeSave.currentStage
+                currentArea = templeModeSave.currentArea
+                housing = templeModeSave.housing
+                support = templeModeSave.support
+                structures = templeModeSave.structures
+                resources = templeModeSave.resources
+                highestStages = templeModeSave.highestStages
+                team = templeModeSave.team
+              }
+              for(i=0; i<highestStages.length; i++) {
+  							if(highestStages[i] == 0) {
+  								highestArea = i
+  								break
+  							}
+  							if(i == highestStages.length - 1) {
+  								highestArea = i + 1
+  							}
+  						}
+            }
 					}
 					document.body.removeChild(elm)
+          pageLoadChecker.stats = false
+          drawStats()
 				}
 				reader.readAsText(file)
 			}
@@ -2546,6 +2721,89 @@ function drawStats() {
       let min = Math.floor((delta - hr*3600)/60)
       let sec = Math.round(delta - hr*3600 - min*60)
       ctx.fillText("Runtime: " + hr + "h" + min + "m" + sec + "s", 120, 359)
+    }
+    if(templeRewards["templeMode"]) {
+      stats.addButton("quit", "Exit Temple Mode", "14px Arial", textColor, 10, 340, function() {
+        templeModeSave = {
+          currentStage: currentStage,
+          currentArea: currentArea,
+          devmode: devmode,
+          housing: housing,
+          support: support,
+          structures: structures,
+          resources: resources,
+          highestStages: highestStages,
+          team: team
+        }
+        localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
+
+        sf = localStorage.getItem("savefile")
+        sf = JSON.parse(sf)
+        sf.textColor = textColor
+        sf.templeRewards = templeRewards
+        sf.questStore = questStore
+        sf.devmode = devmode
+        sf.rebirth_points = rebirth_points
+        sf.rebirth = rebirth
+        sf.quests_list = quests_list
+        sf.inventory = inventory
+        localStorage.setItem("savefile", JSON.stringify(sf))
+
+        savefile = localStorage.getItem("savefile")
+        savefile = JSON.parse(savefile)
+        if(savefile != undefined) {
+        	textColor = savefile.textColor
+        	currentStage = savefile.currentStage
+        	templeRewards = savefile.templeRewards
+        	currentArea = savefile.currentArea
+        	housing = savefile.housing
+        	support = savefile.support
+          structures = savefile.structures
+        	resources = savefile.resources
+        	highestStages = savefile.highestStages
+        	inventory = savefile.inventory
+
+          hero = team[0]
+        	team = savefile.team
+          team[0] = hero
+
+          if(currentArea == 7) {
+            templeRewards["inTemple"] = true
+          }
+
+        	if(textColor == undefined) {
+        		textColor = "black"
+            document.body.style.backgroundColor = "white"
+        	} else if(textColor == "white") {
+        		document.body.style.backgroundColor = "black"
+        	} else if(textColor == "black") {
+            document.body.style.backgroundColor = "white"
+          }
+
+        	for(i=0; i<highestStages.length; i++) {
+        		if(highestStages[i] == 0) {
+        			highestArea = i
+        			break
+        		}
+        		if(i == highestStages.length - 1) {
+        			highestArea = i + 1
+        		}
+        	}
+
+        	if(challenges["noEquipment"].completed) {
+        		baseBonus = 3
+
+        		team[0].attack = (baseBonus - 1)**9 + team[0].baseAttack**baseBonus + Math.sqrt(team[0].experience)/2
+        		team[0].defence = team[0].baseDefence*baseBonus**3 + Math.sqrt(team[0].experience)
+        		team[0].speed = 2 + (1.5 + (baseBonus - 1)**2)*(rebirth["hero"].level)
+        	}
+        	quests_list["misc"]["time"].start += Date.now()/1000 - quests_list["misc"]["time"].lastSaveDate
+        }
+        templeRewards["templeMode"] = false
+        pageLoadChecker.stats = false
+        drawStats()
+      }, 150, 25)
+      stats.drawButton("quit")
     }
 	}
 	pageLoadChecker.stats = true
@@ -2658,7 +2916,130 @@ function drawTemple() {
     if(challenges["1HP"].fastestTime && challenges["1HP"].fastestTime <= 7200
       && challenges["aggroHero"].fastestTime && challenges["aggroHero"].fastestTime <= 7200
       && challenges["noEquipment"].fastestTime && challenges["noEquipment"].fastestTime <= 7200) {
-      ctx.fillText("Enter Temple | Temple Mode", 10, 300)
+      temple.addButton("enterTemple", "Enter Temple", "16px Arial", textColor, 10, 290, function() {
+        templeRewards["inTemple"] = true
+        loadArea(7)
+        currentPage = "battle"
+      }, 150, 40)
+      temple.addButton("templeMode", "Temple Mode", "16px Arial", textColor, 200, 290, function() {
+        templeRewards["templeMode"] = true
+
+        templeModeSave = localStorage.getItem("templeMode")
+        templeModeSave = JSON.parse(templeModeSave)
+        if(templeModeSave) {
+          currentStage = templeModeSave.currentStage
+          currentArea = templeModeSave.currentArea
+          housing = templeModeSave.housing
+          support = templeModeSave.support
+          structures = templeModeSave.structures
+          resources = templeModeSave.resources
+          highestStages = templeModeSave.highestStages
+          team = templeModeSave.team
+
+          for(i=0; i<highestStages.length; i++) {
+            if(highestStages[i] == 0) {
+              highestArea = i
+              break
+            }
+            if(i == highestStages.length - 1) {
+              highestArea = i + 1
+            }
+          }
+        } else {
+          currentStage = 1
+          currentArea = 1
+          highestArea = 1
+          housing = {
+          	"kobold": {
+          		owned: 0,
+          		filled: 0,
+          		level: 0
+          	},
+          	"beast": {
+          		owned: 0,
+          		filled: 0,
+          		level: 0
+          	},
+          	"giant": {
+          		owned: 0,
+          		filled: 0,
+          		level: 0
+          	},
+          	"golem": {
+          		owned: 0,
+          		filled: 0,
+          		level: 0
+          	},
+          	"demon": {
+          		owned: 0,
+          		filled: 0,
+          		level: 0
+          	},
+          	"dragon": {
+          		owned: 0,
+          		filled: 0,
+          		level: 0
+          	}
+          }
+          support = {
+          	"meteor": {
+          		meteors: [],
+          		level: 0
+          	},
+          	"chamber": {
+          		owned: 0,
+          		level: 0
+          	}
+          }
+          structures = {
+            "totem": {
+              totems: [],
+              level: 0
+            },
+            "hall": {
+              halls: [],
+              level: 0
+            }
+          }
+          resources = {
+          	crystal: 0,
+          	stone: 0,
+          	leaf: 0
+          }
+          highestStages = [ 1, 0, 0, 0, 0, 0, 0 ]
+          team = [{
+          	name: "hero",
+          	x: 350,
+          	y: 600,
+          	experience: team[0].experience,
+          	health: 1000,
+          	baseAttack: team[0].baseAttack,
+          	attack: team[0].attack,
+          	baseDefence: team[0].baseDefence,
+          	defence: team[0].defence,
+          	speed: team[0].speed,
+          	cooldown: Date.now()/1000,
+          	tempWeapon: team[0].tempWeapon,
+          	weapon: team[0].weapon,
+          	helmet: team[0].helmet,
+          	torso: team[0].torso,
+          	legs: team[0].legs,
+          	rings: team[0].rings
+          }]
+        }
+
+        battle.removeButton("area 7")
+        loadArea(currentArea)
+        currentPage = "battle"
+      }, 150, 40)
+      temple.drawButton("enterTemple")
+      temple.drawButton("templeMode")
+
+      if(templeRewards["templeMode"]) {
+        ctx.font = "24px Arial"
+        ctx.fillStyle = "red"
+        ctx.fillText("You beat Hero Incremental! Congratulations!!", 10, 400)
+      }
     }
 	}
 }
@@ -2741,6 +3122,9 @@ var main = function() {
 			if(Date.now()/1000 > quests_list["misc"]["time"].start + 43200) {
 				quests_list["misc"]["time"].completed = true
 				devmode *= 1.25
+        if(devmode > 3.5) {
+          devmode = 3.5
+        }
 				messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
 				questStore.quest_points += 1
 			}
@@ -2975,22 +3359,24 @@ var main = function() {
 					highestStages[currentArea - 1] = currentStage
 					rebirth_points += Math.floor(1.5*(currentStage - 1)*currentArea**2)
 
-					let stage_names = Object.keys(quests_list)
-					let current_stage_name = stage_names[currentArea - 1]
-					if(currentStage > quests_list[current_stage_name]["waves"].progress) {
-						quests_list[current_stage_name]["waves"].progress = currentStage
-					}
+          if(currentArea != 7) {
+            let stage_names = Object.keys(quests_list)
+  					let current_stage_name = stage_names[currentArea - 1]
+  					if(currentStage > quests_list[current_stage_name]["waves"].progress) {
+  						quests_list[current_stage_name]["waves"].progress = currentStage
+  					}
 
-					if(currentStage >= quests_list[current_stage_name]["waves"].goal) {
-						rebirth_points += quests_list[current_stage_name]["waves"].reward
-						quests_list[current_stage_name]["waves"].goal += 5
-						quests_list[current_stage_name]["waves"].reward *= 5
-						messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
-						questStore.quest_points += 1
-					}
+  					if(currentStage >= quests_list[current_stage_name]["waves"].goal) {
+  						rebirth_points += quests_list[current_stage_name]["waves"].reward
+  						quests_list[current_stage_name]["waves"].goal += 5
+  						quests_list[current_stage_name]["waves"].reward *= 5
+  						messages.push({text: "Quest completed!", timeout: Date.now()/1000 + 3})
+  						questStore.quest_points += 1
+  					}
+          }
 				}
 				bolts = []
-				if(currentStage == 10) {
+				if(currentStage == 10 && currentArea < 7) {
 					if(currentArea == highestArea) {
 						highestArea += 1
 						highestStages[highestArea - 1] = 1
@@ -3135,7 +3521,14 @@ var main = function() {
 				}
 				if(inventory[team[0].weapon].type == "sword"){
 					damage = team[0].attack + inventory[team[0].weapon].attack
-					var temp_def = species[enemies[closest_enemy].species].defence*(1.1**enemies[closest_enemy].prestige)
+          var temp_def
+          if(templeRewards["templeMode"]) {
+            defence = species[enemies[closest_enemy].species].defence*10
+            temp_def = defence*(1.2**enemies[closest_enemy].prestige)
+          } else {
+            temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+          }
+
 					def_ratio = calc_def_ratio(temp_def)
 					damage = damage/(100/(100-def_ratio))
 					enemies[closest_enemy].health -= damage
@@ -3154,11 +3547,19 @@ var main = function() {
 
 				if(dist < 20) {
 					damage = team[0].attack + inventory[team[0].weapon].attack
-					var temp_def = species[enemies[bolts[i].targetid].species].defence*(1.1**enemies[closest_enemy].prestige)
+          let temp_def
+          if(templeRewards["templeMode"]) {
+            defence = species[enemies[closest_enemy].species].defence*10
+            temp_def = defence*(1.2**enemies[closest_enemy].prestige)
+          } else {
+            temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+          }
 					def_ratio = calc_def_ratio(temp_def)
 					damage = damage/(100/(100-def_ratio))
 					enemies[bolts[i].targetid].health -= damage
-					enemies[bolts[i].targetid].targetid = 0
+          if(enemies[bolts[i].targetid].targetid == undefined) {
+  					enemies[bolts[i].targetid].targetid = 0
+          }
 
 					if(enemies[bolts[i].targetid].health <= 0) {
 						handleDeath(bolts[i].targetid)
@@ -3179,8 +3580,8 @@ var main = function() {
 			var closest_dist = 2000
 			var closest_enemy = 0
 			for(j=0; j<enemies.length; j++){
-				xdif = Math.abs(enemies[j].x - team[i].x)
-				ydif = Math.abs(enemies[j].y - team[i].y)
+				xdif = enemies[j].x - team[i].x
+				ydif = enemies[j].y - team[i].y
 				dist = Math.sqrt(xdif*xdif + ydif*ydif)
 				if(dist < closest_dist) {
 					closest_dist = dist
@@ -3191,8 +3592,8 @@ var main = function() {
       if(challenges["aggroHero"].completed) {
         for(j=0; j<enemies.length; j++) {
           if(enemies[j].targetid == 0) {
-            xdif = Math.abs(enemies[j].x - team[i].x)
-    				ydif = Math.abs(enemies[j].y - team[i].y)
+            xdif = enemies[j].x - team[i].x
+    				ydif = enemies[j].y - team[i].y
     				dist = Math.sqrt(xdif*xdif + ydif*ydif)
             closest_enemy = j
             closest_dist = dist
@@ -3232,8 +3633,8 @@ var main = function() {
 
       let in_hero_range = false
       if(templeRewards["aura"]) {
-        hero_xdif = Math.abs(team[0].x - team[i].x)
-        hero_ydif = Math.abs(team[0].y - team[i].y)
+        hero_xdif = team[0].x - team[i].x
+        hero_ydif = team[0].y - team[i].y
         dist = Math.sqrt(hero_xdif*hero_xdif + hero_ydif*hero_ydif)
         if(dist < 150) {
           in_hero_range = true
@@ -3276,7 +3677,14 @@ var main = function() {
               if(in_hero_range) {
                 damage *= 5
               }
-    					var temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+              let temp_def
+              if(templeRewards["templeMode"]) {
+                defence = species[enemies[closest_enemy].species].defence*10
+                temp_def = defence*(1.2**enemies[closest_enemy].prestige)
+              } else {
+                temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+              }
+
     					def_ratio = calc_def_ratio(temp_def)
     					damage = damage/(100/(100-def_ratio))
     					enemies[closest_enemy].health -= damage
@@ -3291,7 +3699,13 @@ var main = function() {
             if(in_hero_range) {
               damage *= 5
             }
-  					var temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+            let temp_def
+            if(templeRewards["templeMode"]) {
+              defence = species[enemies[closest_enemy].species].defence*10
+              temp_def = defence*(1.2**enemies[closest_enemy].prestige)
+            } else {
+              temp_def = species[enemies[closest_enemy].species].defence*(1.2**enemies[closest_enemy].prestige)
+            }
   					def_ratio = calc_def_ratio(temp_def)
   					damage = damage/(100/(100-def_ratio))
   					enemies[closest_enemy].health -= damage
@@ -3308,8 +3722,8 @@ var main = function() {
 			var closest_dist = 2000
 			var closest_enemy = 0
       for(j=0; j<team.length; j++){
-				xdif = Math.abs(enemies[i].x - team[j].x)
-				ydif = Math.abs(enemies[i].y - team[j].y)
+				xdif = enemies[i].x - team[j].x
+				ydif = enemies[i].y - team[j].y
 				dist = Math.sqrt(xdif*xdif + ydif*ydif)
 				if(dist < closest_dist) {
 					closest_dist = dist
@@ -3318,8 +3732,8 @@ var main = function() {
 			}
 
       let slow_multiplier = 1
-      xdif = Math.abs(enemies[i].x - team[0].x)
-      ydif = Math.abs(enemies[i].y - team[0].y)
+      xdif = enemies[i].x - team[0].x
+      ydif = enemies[i].y - team[0].y
       dist = Math.sqrt(xdif*xdif + ydif*ydif)
       if(dist < support["chamber"].radius) {
         slow_multiplier = .85 - .065*support["chamber"].level
@@ -3356,8 +3770,8 @@ var main = function() {
           enemies[i].targetid = 0
           closest_enemy = 0
 
-          xdif = Math.abs(enemies[i].x - team[0].x)
-  				ydif = Math.abs(enemies[i].y - team[0].y)
+          xdif = enemies[i].x - team[0].x
+  				ydif = enemies[i].y - team[0].y
   				dist = Math.sqrt(xdif*xdif + ydif*ydif)
 					closest_dist = dist
         }
@@ -3380,17 +3794,15 @@ var main = function() {
 				if(enemies[i].cooldown == undefined) {
 					enemies[i].cooldown = Date.now()/1000 + 1/slow_multiplier/(1.1**enemies[i].prestige)/devmode
 				}
-				xdif = Math.abs(enemies[i].x - team[closest_enemy].x)
-				ydif = Math.abs(enemies[i].y - team[closest_enemy].y)
-				dist = Math.sqrt(xdif*xdif + ydif*ydif)
 				xdif = team[closest_enemy].x - enemies[i].x
 				ydif = team[closest_enemy].y - enemies[i].y
+        dist = Math.sqrt(xdif*xdif + ydif*ydif)
 				angle = Math.atan2(ydif, xdif)
 				movex = Math.cos(angle)*(1.05**enemies[i].prestige)*slow_multiplier*devmode
 				movey = Math.sin(angle)*(1.05**enemies[i].prestige)*slow_multiplier*devmode
 				if(dist > 25) {
 					let movedist = Math.sqrt(movex*movex + movey*movey)
-					let goalmove = closest_dist - 24
+					let goalmove = dist - 24
 					if(goalmove < movedist) {
 						movex = goalmove*Math.cos(angle)
 						movey = goalmove*Math.sin(angle)
@@ -3399,7 +3811,13 @@ var main = function() {
 					enemies[i].y += movey
 				} else {
 					if(Date.now()/1000 > enemies[i].cooldown){
-						damage = species[enemies[i].species].attack*(1.2**enemies[i].prestige)
+            if(templeRewards["templeMode"]) {
+              attack = species[enemies[i].species].attack*10
+              damage = attack*(1.2**enemies[i].prestige)
+            } else {
+              damage = species[enemies[i].species].attack*(1.2**enemies[i].prestige)
+            }
+
 						if(closest_enemy == 0) {
               support["chamber"].radius = 0
 							defence = team[0].defence
