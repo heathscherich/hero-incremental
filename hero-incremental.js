@@ -1527,7 +1527,7 @@ function drawBuildingsScreen() {
             i = keys.indexOf(house)
     				if(resources["stone"] >= 5*10**(housing[house].owned + i)) {
     					resources["stone"] -= 5*10**(housing[house].owned + i)
-    					housing[h].owned += 1
+    					housing[house].owned += 1
 
     					pageLoadChecker.buildings = false
     					drawBuildingsScreen()
