@@ -1000,13 +1000,8 @@ function rebirthResets() {
 	}]
 
   if(templeRewards["templeMode"]) {
-    inventory = savefile.inventory
-
-    pageLoadChecker.inventory = false
-    drawInventory()
-    inv["buttons"]["craftAll"].action()
-    currentPage = "battle"
-    pageLoadChecker.inventory = false
+    savefile.inventory = inventory
+    localStorage.setItem("savefile", JSON.stringify(savefile))
   }
 }
 
