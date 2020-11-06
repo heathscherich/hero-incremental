@@ -1000,8 +1000,30 @@ function rebirthResets() {
 	}]
 
   if(templeRewards["templeMode"]) {
-    savefile.inventory = inventory
-    localStorage.setItem("savefile", JSON.stringify(savefile))
+    templeModeSave = {
+      currentStage: currentStage,
+      currentArea: currentArea,
+      devmode: devmode,
+      housing: housing,
+      support: support,
+      structures: structures,
+      resources: resources,
+      highestStages: highestStages,
+      team: team
+    }
+    localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
+
+    sf = localStorage.getItem("savefile")
+    sf = JSON.parse(sf)
+    sf.textColor = textColor
+    sf.templeRewards = templeRewards
+    sf.questStore = questStore
+    sf.devmode = devmode
+    sf.rebirth_points = rebirth_points
+    sf.rebirth = rebirth
+    sf.quests_list = quests_list
+    sf.inventory = inventory
+    localStorage.setItem("savefile", JSON.stringify(sf))
   }
 }
 
