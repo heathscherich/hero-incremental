@@ -92,7 +92,7 @@ var species = {
 		health: 40,
 		attack: 15,
 		defence: 25,
-		reward: 5
+		reward: 10
 	},
 	"giant": {
 		symbol: "gi",
@@ -1487,248 +1487,76 @@ function drawInventory() {
 
 function drawBuildingsScreen() {
 	function removeDetailsButtons() {
-		buildings.removeButton("buy hut")
-		buildings.removeButton("upgrade hut")
-		buildings.removeButton("buy den")
-		buildings.removeButton("upgrade den")
-		buildings.removeButton("buy cave")
-		buildings.removeButton("upgrade cave")
-		buildings.removeButton("buy mountain")
-		buildings.removeButton("upgrade mountain")
-		buildings.removeButton("buy pit")
-		buildings.removeButton("upgrade pit")
-		buildings.removeButton("buy nest")
-		buildings.removeButton("upgrade nest")
-		buildings.removeButton("buy meteor")
-		buildings.removeButton("upgrade meteor")
-    buildings.removeButton("buy chamber")
-    buildings.removeButton("upgrade chamber")
-		buildings.removeButton("buy totem")
-		buildings.removeButton("upgrade totem")
-    buildings.removeButton("buy hall")
-    buildings.removeButton("upgrade hall")
+    for(building in housing) {
+      buildings.removeButton("buy " + building)
+      buildings.removeButton("upgrade " + building)
+    }
+    for(building in support) {
+      buildings.removeButton("buy " + building)
+      buildings.removeButton("upgrade " + building)
+    }
+    for(building in structures) {
+      buildings.removeButton("buy " + building)
+      buildings.removeButton("upgrade " + building)
+    }
 	}
 	function showBuildingDetails(building) {
 		removeDetailsButtons()
-		if(building == "hut") {
-			ctx.strokeRect(170, 50, 350, 200)
-			ctx.font = "24px Arial"
-			ctx.fillStyle = textColor
-			ctx.fillText("Hut", 190, 75)
-			ctx.font = "16px Arial"
-			ctx.fillText("Chance to recruit a Kobold", 240, 75)
-			ctx.fillText("Owned: " + housing["kobold"].owned, 190, 95)
-			ctx.fillText("Level: " + housing["kobold"].level, 190, 115)
+    keys = Object.keys(housing)
+    i = keys.indexOf(building)
+    if(i > -1) {
+      building_names = ["Hut", "Den", "Cave", "Mountain", "Pit", "Nest"]
+      for(h in housing) {
+        if(building == h) {
+          ctx.strokeRect(170, 50, 350, 200)
+    			ctx.font = "24px Arial"
+    			ctx.fillStyle = textColor
+    			ctx.fillText(building_names[i], 190, 75)
+    			ctx.font = "16px Arial"
+          width = ctx.measureText(building_names[i]).width
+    			ctx.fillText("Chance to recruit a " + h, 210 + width, 75)
+    			ctx.fillText("Owned: " + housing[h].owned, 190, 95)
+    			ctx.fillText("Level: " + housing[h].level, 190, 115)
+          ctx.font = "14px Arial"
+          ctx.fillText("Health: " + species[building].health * (1.5**rebirth["ally"].level) * (housing[building].level + 4)/5, 190, 135)
+          ctx.fillText("Attack: " + species[building].attack * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5, 190, 150)
+          ctx.fillText("Defence: " + species[building].defence * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5, 190, 165)
 
-			buildings.addButton("buy hut", "Buy", "14px Arial", textColor, 205, 185, function() {
-				if(resources["stone"] >= 10**(housing["kobold"].owned + 1)) {
-					resources["stone"] -= 10**(housing["kobold"].owned + 1)
-					housing["kobold"].owned += 1
+    			buildings.addButton("buy " + h, "Buy", "14px Arial", textColor, 205, 185, function(house) {
+            keys = Object.keys(housing)
+            i = keys.indexOf(house)
+    				if(resources["stone"] >= 5*10**(housing[house].owned + i)) {
+    					resources["stone"] -= 5*10**(housing[house].owned + i)
+    					housing[h].owned += 1
 
-					pageLoadChecker.buildings = false
-					drawBuildingsScreen()
-				}
-			}, 75, 20)
-			buildings.drawButton("buy hut")
-			ctx.font = "14px Arial"
-			ctx.fillText(10**(housing["kobold"].owned + 1) + " Stone", 205, 218)
-			if(housing["kobold"].owned > 0) {
-				buildings.addButton("upgrade hut", "Upgrade", "14px Arial", textColor, 320, 185, function() {
-					if(resources["stone"] >= Math.ceil(10 * (housing["kobold"].level + 1)**1.5)) {
-						resources["stone"] -= Math.ceil(10 * (housing["kobold"].level + 1)**1.5)
-						housing["kobold"].level += 1
+    					pageLoadChecker.buildings = false
+    					drawBuildingsScreen()
+    				}
+    			}, 75, 20)
+    			buildings.drawButton("buy " + h)
+    			ctx.font = "14px Arial"
+    			ctx.fillText(5*10**(housing[h].owned + i) + " Stone", 205, 218)
+    			if(housing[h].owned > 0) {
+    				buildings.addButton("upgrade " + h, "Upgrade", "14px Arial", textColor, 320, 185, function(house) {
+              keys = Object.keys(housing)
+              i = keys.indexOf(house)
+    					if(resources["stone"] >= Math.ceil((5 * 10**i) * (housing[house].level + 1)**1.5)) {
+    						resources["stone"] -= Math.ceil((5 * 10**i) * (housing[house].level + 1)**1.5)
+    						housing[house].level += 1
 
-						pageLoadChecker.buildings = false
-						drawBuildingsScreen()
-					}
-				}, 75, 20)
-				buildings.drawButton("upgrade hut")
-				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(10 * (housing["kobold"].level + 1)**1.5) + " Stone", 320, 218)
-			}
-		} else if(building == "den") {
-			ctx.strokeRect(170, 50, 350, 200)
-			ctx.font = "24px Arial"
-			ctx.fillStyle = textColor
-			ctx.fillText("Den", 190, 75)
-			ctx.font = "16px Arial"
-			ctx.fillText("Chance to recruit a Beast", 245, 75)
-			ctx.fillText("Owned: " + housing["beast"].owned, 190, 95)
-			ctx.fillText("Level: " + housing["beast"].level, 190, 115)
+    						pageLoadChecker.buildings = false
+    						drawBuildingsScreen()
+    					}
+    				}, 75, 20)
+    				buildings.drawButton("upgrade " + h)
+    				ctx.font = "14px Arial"
+    				ctx.fillText(Math.ceil((5 * 10**i) * (housing[h].level + 1)**1.5) + " Stone", 320, 218)
+          }
+        }
+      }
+    }
 
-			buildings.addButton("buy den", "Buy", "14px Arial", textColor, 205, 185, function() {
-				if(resources["stone"] >= 10**(housing["beast"].owned + 2)) {
-					resources["stone"] -= 10**(housing["beast"].owned + 2)
-					housing["beast"].owned += 1
-
-					pageLoadChecker.buildings = false
-					drawBuildingsScreen()
-				}
-			}, 75, 20)
-			ctx.font = "14px Arial"
-			buildings.drawButton("buy den")
-			ctx.fillText(10**(housing["beast"].owned + 2) + " Stone", 205, 218)
-
-			if(housing["beast"].owned > 0) {
-				buildings.addButton("upgrade den", "Upgrade", "14px Arial", textColor, 320, 185, function() {
-					if(resources["stone"] >= Math.ceil(100 * (housing["beast"].level + 1)**1.5)) {
-						resources["stone"] -= Math.ceil(100 * (housing["beast"].level + 1)**1.5)
-						housing["beast"].level += 1
-
-						pageLoadChecker.buildings = false
-						drawBuildingsScreen()
-					}
-				}, 75, 20)
-				buildings.drawButton("upgrade den")
-				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(100 * (housing["beast"].level + 1)**1.5) + " Stone", 320, 218)
-			}
-		} else if(building == "cave") {
-			ctx.strokeRect(170, 50, 350, 200)
-			ctx.font = "24px Arial"
-			ctx.fillStyle = textColor
-			ctx.fillText("Cave", 190, 75)
-			ctx.font = "16px Arial"
-			ctx.fillText("Chance to recruit a Giant", 260, 75)
-			ctx.fillText("Owned: " + housing["giant"].owned, 190, 95)
-			ctx.fillText("Level: " + housing["giant"].level, 190, 115)
-
-			buildings.addButton("buy cave", "Buy", "14px Arial", textColor, 205, 185, function() {
-				if(resources["stone"] >= 10**(housing["giant"].owned + 3)) {
-					resources["stone"] -= 10**(housing["giant"].owned + 3)
-					housing["giant"].owned += 1
-
-					pageLoadChecker.buildings = false
-					drawBuildingsScreen()
-				}
-			}, 75, 20)
-			buildings.drawButton("buy cave")
-			ctx.font = "14px Arial"
-			ctx.fillText(10**(housing["giant"].owned + 3) + " Stone", 205, 218)
-
-			if(housing["giant"].owned > 0) {
-				buildings.addButton("upgrade cave", "Upgrade", "14px Arial", textColor, 320, 185, function() {
-					if(resources["stone"] >= Math.ceil(1000 * (housing["giant"].level + 1)**1.5)) {
-						resources["stone"] -= Math.ceil(1000 * (housing["giant"].level + 1)**1.5)
-						housing["giant"].level += 1
-
-						pageLoadChecker.buildings = false
-						drawBuildingsScreen()
-					}
-				}, 75, 20)
-				buildings.drawButton("upgrade cave")
-				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(1000 * (housing["giant"].level + 1)**1.5) + " Stone", 320, 218)
-			}
-		} else if(building == "mountain") {
-			ctx.strokeRect(170, 50, 350, 200)
-			ctx.font = "24px Arial"
-			ctx.fillStyle = textColor
-			ctx.fillText("Mountain", 190, 75)
-			ctx.font = "16px Arial"
-			ctx.fillText("Chance to recruit a Golem", 300, 75)
-			ctx.fillText("Owned: " + housing["golem"].owned, 190, 95)
-			ctx.fillText("Level: " + housing["golem"].level, 190, 115)
-
-			buildings.addButton("buy mountain", "Buy", "14px Arial", textColor, 205, 185, function() {
-				if(resources["stone"] >= 10**(housing["golem"].owned + 4)) {
-					resources["stone"] -= 10**(housing["golem"].owned + 4)
-					housing["golem"].owned += 1
-
-					pageLoadChecker.buildings = false
-					drawBuildingsScreen()
-				}
-			}, 75, 20)
-			buildings.drawButton("buy mountain")
-			ctx.font = "14px Arial"
-			ctx.fillText(10**(housing["golem"].owned + 4) + " Stone", 205, 218)
-			if(housing["golem"].owned > 0) {
-				buildings.addButton("upgrade mountain", "Upgrade", "14px Arial", textColor, 320, 185, function() {
-					if(resources["stone"] >= Math.ceil(10000 * (housing["golem"].level + 1)**1.5)) {
-						resources["stone"] -= Math.ceil(10000 * (housing["golem"].level + 1)**1.5)
-						housing["golem"].level += 1
-
-						pageLoadChecker.buildings = false
-						drawBuildingsScreen()
-					}
-				}, 75, 20)
-				buildings.drawButton("upgrade mountain")
-				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(10000 * (housing["golem"].level + 1)**1.5) + " Stone", 320, 218)
-			}
-		} else if(building == "pit") {
-			ctx.strokeRect(170, 50, 350, 200)
-			ctx.font = "24px Arial"
-			ctx.fillStyle = textColor
-			ctx.fillText("Pit", 190, 75)
-			ctx.font = "16px Arial"
-			ctx.fillText("Chance to recruit a Demon", 228, 75)
-			ctx.fillText("Owned: " + housing["demon"].owned, 190, 95)
-			ctx.fillText("Level: " + housing["demon"].level, 190, 115)
-
-			buildings.addButton("buy pit", "Buy", "14px Arial", textColor, 205, 185, function() {
-				if(resources["stone"] >= 10**(housing["demon"].owned + 5)) {
-					resources["stone"] -= 10**(housing["demon"].owned + 5)
-					housing["demon"].owned += 1
-
-					pageLoadChecker.buildings = false
-					drawBuildingsScreen()
-				}
-			}, 75, 20)
-			buildings.drawButton("buy pit")
-			ctx.font = "14px Arial"
-			ctx.fillText(10**(housing["demon"].owned + 5) + " Stone", 205, 218)
-			if(housing["demon"].owned > 0) {
-				buildings.addButton("upgrade pit", "Upgrade", "14px Arial", textColor, 320, 185, function() {
-					if(resources["stone"] >= Math.ceil(100000 * (housing["demon"].level + 1)**1.5)) {
-						resources["stone"] -= Math.ceil(100000 * (housing["demon"].level + 1)**1.5)
-						housing["demon"].level += 1
-
-						pageLoadChecker.buildings = false
-						drawBuildingsScreen()
-					}
-				}, 75, 20)
-				buildings.drawButton("upgrade pit")
-				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(100000 * (housing["demon"].level + 1)**1.5) + " Stone", 320, 218)
-			}
-		} else if(building == "nest") {
-			ctx.strokeRect(170, 50, 350, 200)
-			ctx.font = "24px Arial"
-			ctx.fillStyle = textColor
-			ctx.fillText("Nest", 190, 75)
-			ctx.font = "16px Arial"
-			ctx.fillText("Chance to recruit a Dragon", 300, 75)
-			ctx.fillText("Owned: " + housing["dragon"].owned, 190, 95)
-			ctx.fillText("Level: " + housing["dragon"].level, 190, 115)
-
-			buildings.addButton("buy nest", "Buy", "14px Arial", textColor, 205, 185, function() {
-				if(resources["stone"] >= 10**(housing["dragon"].owned + 6)) {
-					resources["stone"] -= 10**(housing["dragon"].owned + 6)
-					housing["dragon"].owned += 1
-
-					pageLoadChecker.buildings = false
-					drawBuildingsScreen()
-				}
-			}, 75, 20)
-			buildings.drawButton("buy nest")
-			ctx.font = "14px Arial"
-			ctx.fillText(10**(housing["dragon"].owned + 6) + " Stone", 205, 218)
-			if(housing["dragon"].owned > 0) {
-				buildings.addButton("upgrade nest", "Upgrade", "14px Arial", textColor, 320, 185, function() {
-					if(resources["stone"] >= Math.ceil(1000000 * (housing["dragon"].level + 1)**1.5)) {
-						resources["stone"] -= Math.ceil(1000000 * (housing["dragon"].level + 1)**1.5)
-						housing["dragon"].level += 1
-
-						pageLoadChecker.buildings = false
-						drawBuildingsScreen()
-					}
-				}, 75, 20)
-				buildings.drawButton("upgrade nest")
-				ctx.font = "14px Arial"
-				ctx.fillText(Math.ceil(1000000 * (housing["dragon"].level + 1)**1.5) + " Stone", 320, 218)
-			}
-		} else if(building == "meteor") {
+		if(building == "meteor") {
 			ctx.strokeRect(200, 50, 350, 200)
 			ctx.font = "24px Arial"
 			ctx.fillStyle = textColor
@@ -1737,6 +1565,10 @@ function drawBuildingsScreen() {
 			ctx.fillText("Summons meteors", 360, 75)
 			ctx.fillText("Owned: " + support["meteor"].meteors.length, 220, 95)
 			ctx.fillText("Level: " + support["meteor"].level, 220, 115)
+      if(support["meteor"].meteors.length) {
+        ctx.fillText("Damage: " + 8*1.65**support["meteor"].level + 25*support["meteor"].level, 220, 135)
+        ctx.fillText("Avg Time: " + 10/support["meteor"].meteors.length + "s", 220, 155)
+      }
 
 			buildings.addButton("buy meteor", "Buy", "14px Arial", textColor, 235, 185, function() {
 				if(resources["crystal"] >= 5*10**(support["meteor"].meteors.length + 1)) {
@@ -1778,6 +1610,10 @@ function drawBuildingsScreen() {
 			ctx.fillText("and attack speed", 370, 90)
 			ctx.fillText("Owned: " + structures["totem"].totems.length, 220, 95)
 			ctx.fillText("Level: " + structures["totem"].level, 220, 115)
+      if(structures["totem"].totems.length) {
+        ctx.fillText("Buff: 1.5x", 220, 135)
+        ctx.fillText("Radius: " + (75 + 25*structures["totem"].level), 220, 155)
+      }
 
 			buildings.addButton("buy totem", "Buy", "14px Arial", textColor, 235, 185, function() {
 				if(resources["leaf"] >= 2*10**(structures["totem"].totems.length + 1)) {
@@ -1819,6 +1655,11 @@ function drawBuildingsScreen() {
       ctx.fillText("field, slowing enemies", 387, 90)
 			ctx.fillText("Owned: " + support["chamber"].owned, 220, 95)
 			ctx.fillText("Level: " + support["chamber"].level, 220, 115)
+      if(support["chamber"].owned) {
+        ctx.fillText("Slowdown: " + .85 - .065*support["chamber"].level, 220, 135)
+        ctx.fillText("Max radius: " + 50*support["chamber"].owned + 25, 220, 155)
+        ctx.fillText("Generation: " + 10*support["chamber"].owned + "/s", 220, 175)
+      }
 
 			buildings.addButton("buy chamber", "Buy", "14px Arial", textColor, 235, 185, function() {
 				if(resources["crystal"] >= 8*10**(support["chamber"].owned + 2) && resources["leaf"] >= 8*10**(support["chamber"].owned + 2)) {
@@ -1860,6 +1701,9 @@ function drawBuildingsScreen() {
 			ctx.fillText("Heals allies", 335, 75)
 			ctx.fillText("Owned: " + structures["hall"].halls.length, 220, 95)
 			ctx.fillText("Level: " + structures["hall"].level, 220, 115)
+      if(structures["hall"].halls.length) {
+        ctx.fillText("Heal: " + 25*1.85**(structures["hall"].level + 2), 220, 135)
+      }
 
 			buildings.addButton("buy hall", "Buy", "14px Arial", textColor, 235, 185, function() {
 				if(resources["leaf"] >= 2*10**(structures["hall"].halls.length + 3) && resources["stone"] >= 2*10**(structures["hall"].halls.length + 3)) {
@@ -1954,115 +1798,37 @@ function drawBuildingsScreen() {
 			buildings.removeButton("hall")
 			showBuildingDetails(buildingsSubmenus.showHouses)
 		} else if(buildingsSubmenus.showSupport) {
-      buildings.removeButton("hut")
-			buildings.removeButton("den")
-			buildings.removeButton("cave")
-			buildings.removeButton("mountain")
-			buildings.removeButton("pit")
-			buildings.removeButton("nest")
+      for(i in housing) {
+        buildings.removeButton("show " + i)
+      }
       buildings.removeButton("totem")
 			buildings.removeButton("hall")
 			showBuildingDetails(buildingsSubmenus.showSupport)
 		} else if(buildingsSubmenus.showStructures) {
-      buildings.removeButton("hut")
-			buildings.removeButton("den")
-			buildings.removeButton("cave")
-			buildings.removeButton("mountain")
-			buildings.removeButton("pit")
-			buildings.removeButton("nest")
+      for(i in housing) {
+        buildings.removeButton("show " + i)
+      }
       buildings.removeButton("meteor")
 			buildings.removeButton("chamber")
       showBuildingDetails(buildingsSubmenus.showStructures)
     }
 
 		if(buildingsSubmenus.showHouses) {
-			buildings.addButton("hut", "Hut", "16px Arial", textColor, 85, 50, function() {
-				ctx.clearRect(0, 0, 800, 800)
-				pageLoadChecker.buildings = false
-				buildingsSubmenus.showHouses = "hut"
-				drawBuildingsScreen()
-			}, 85, 30)
-			if(highestArea >= 2) {
-				buildings.addButton("den", "Den", "16px Arial", textColor, 85, 80, function() {
-					ctx.clearRect(0, 0, 800, 800)
-					pageLoadChecker.buildings = false
-					buildingsSubmenus.showHouses = "den"
-					drawBuildingsScreen()
-				}, 85, 30)
-			}
-			if(highestArea >= 3) {
-				buildings.addButton("cave", "Cave", "16px Arial", textColor, 85, 110, function() {
-					ctx.clearRect(0, 0, 800, 800)
-					pageLoadChecker.buildings = false
-					buildingsSubmenus.showHouses = "cave"
-					drawBuildingsScreen()
-				}, 85, 30)
-			}
-			if(highestArea >= 4) {
-				buildings.addButton("mountain", "Mountain", "16px Arial", textColor, 85, 140, function() {
-					ctx.clearRect(0, 0, 800, 800)
-					pageLoadChecker.buildings = false
-					buildingsSubmenus.showHouses = "mountain"
-					drawBuildingsScreen()
-				}, 85, 30)
-			}
-			if(highestArea >= 5) {
-				buildings.addButton("pit", "Pit", "16px Arial", textColor, 85, 170, function() {
-					ctx.clearRect(0, 0, 800, 800)
-					pageLoadChecker.buildings = false
-					buildingsSubmenus.showHouses = "pit"
-					drawBuildingsScreen()
-				}, 85, 30)
-			}
-			if(highestArea >= 6) {
-				buildings.addButton("nest", "Nest", "16px Arial", textColor, 85, 200, function() {
-					ctx.clearRect(0, 0, 800, 800)
-					pageLoadChecker.buildings = false
-					buildingsSubmenus.showHouses = "nest"
-					drawBuildingsScreen()
-				}, 85, 30)
-			}
-			ctx.strokeRect(85, 50, 85, 200)
-			buildings.drawButton("hut")
-			ctx.beginPath()
-			ctx.moveTo(85, 80)
-			ctx.lineTo(170, 80)
-			ctx.stroke()
-			if (highestArea >= 2) {
-				buildings.drawButton("den")
-				ctx.beginPath()
-				ctx.moveTo(85, 110)
-				ctx.lineTo(170, 110)
-				ctx.stroke()
-			}
-			if (highestArea >= 3) {
-				buildings.drawButton("cave")
-				ctx.beginPath()
-				ctx.moveTo(85, 140)
-				ctx.lineTo(170, 140)
-				ctx.stroke()
-			}
-			if (highestArea >= 4) {
-				buildings.drawButton("mountain")
-				ctx.beginPath()
-				ctx.moveTo(85, 170)
-				ctx.lineTo(170, 170)
-				ctx.stroke()
-			}
-			if (highestArea >= 5) {
-				buildings.drawButton("pit")
-				ctx.beginPath()
-				ctx.moveTo(85, 200)
-				ctx.lineTo(170, 200)
-				ctx.stroke()
-			}
-			if (highestArea >= 6) {
-				buildings.drawButton("nest")
-				ctx.beginPath()
-				ctx.moveTo(85, 230)
-				ctx.lineTo(170, 230)
-				ctx.stroke()
-			}
+      building_names = ["Hut", "Den", "Cave", "Mountain", "Pit", "Nest"]
+      keys = Object.keys(housing)
+      for(i in housing) {
+        j = keys.indexOf(i)
+        if(highestArea >= j + 1) {
+          buildings.addButton("show " + i, building_names[j], "16px Arial", textColor, 85, 50 + 30*j, function(house) {
+            ctx.clearRect(0, 0, 800, 800)
+    				pageLoadChecker.buildings = false
+    				buildingsSubmenus.showHouses = house
+    				drawBuildingsScreen()
+          }, 85, 30)
+          ctx.strokeRect(85, 50, 85, 200)
+    			buildings.drawButton("show " + i)
+        }
+      }
 		} else if(buildingsSubmenus.showSupport) {
 			buildings.addButton("meteor", "Mage Tower", "16px Arial", textColor, 85, 50, function() {
 				ctx.clearRect(0, 0, 800, 800)
@@ -2426,7 +2192,7 @@ function drawStats() {
 			}
 		})
 		stats.drawButton("hero+")
-		stats.addButton("ally+", "+", "16px Arial", textColor, 10, 190, function() {
+		stats.addButton("ally+", "+", "16px Arial", textColor, 10, 206, function() {
 			if(rebirth_points >= rebirth["ally"].cost) {
 				rebirth_points -= rebirth["ally"].cost
 				rebirth["ally"].cost = 2*rebirth["ally"].cost
@@ -2440,7 +2206,7 @@ function drawStats() {
 			}
 		})
 		stats.drawButton("ally+")
-		stats.addButton("equipment+", "+", "16px Arial", textColor, 10, 210, function() {
+		stats.addButton("equipment+", "+", "16px Arial", textColor, 10, 242, function() {
 			if(rebirth_points >= rebirth["equipment"].cost) {
 				rebirth_points -= rebirth["equipment"].cost
 				rebirth["equipment"].cost = 2*rebirth["equipment"].cost
@@ -2454,7 +2220,7 @@ function drawStats() {
 			}
 		})
 		stats.drawButton("equipment+")
-		stats.addButton("resource+", "+", "16px Arial", textColor, 10, 230, function() {
+		stats.addButton("resource+", "+", "16px Arial", textColor, 10, 276, function() {
 			if(rebirth_points >= rebirth["resource"].cost) {
 				rebirth_points -= rebirth["resource"].cost
 				rebirth["resource"].cost = 2*rebirth["resource"].cost
@@ -2470,11 +2236,17 @@ function drawStats() {
 		stats.drawButton("resource+")
 		ctx.fillText("Rebirth Points: " + rebirth_points, 10, 150)
 		ctx.fillText("Hero Level: " + rebirth["hero"].level + " Cost: " + rebirth["hero"].cost, 26, 170)
-		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 26, 190)
-		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 26, 210)
-		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 230)
+		ctx.fillText("Ally Level: " + rebirth["ally"].level + " Cost: " + rebirth["ally"].cost, 26, 206)
+		ctx.fillText("Equipment Level: " + rebirth["equipment"].level + " Cost: " + rebirth["equipment"].cost, 26, 242)
+		ctx.fillText("Resource Level: " + rebirth["resource"].level + " Cost: " + rebirth["resource"].cost, 26, 276)
 
-		stats.addButton("manualsave", "Save", "16px Arial", textColor, 10, 270, function() {
+    ctx.font = "14px Arial"
+    ctx.fillText(2*(rebirth["hero"].level + 1) + " Attack, " + 15*(rebirth["hero"].level + 1) + " Defence, 1.5 Speed", 26, 186)
+    ctx.fillText((1.5**(rebirth["ally"].level + 1)).toFixed(2) + "x Ally Health, " + (1.25**(rebirth["ally"].level + 1)).toFixed(2) + "x Attack and Defence", 26, 222)
+    ctx.fillText((1.4**(rebirth["equipment"].level + 1)).toFixed(2) + "x Equipment stats", 26, 258)
+    ctx.fillText(2**(rebirth["resource"].level + 1) + "x Resources", 26, 292)
+
+		stats.addButton("manualsave", "Save", "16px Arial", textColor, 10, 340, function() {
 			quests_list["misc"]["time"].lastSaveDate = Date.now()/1000
 
       if(templeRewards["templeMode"]) {
@@ -2526,7 +2298,7 @@ function drawStats() {
       }
 
 		}, 75, 25)
-		stats.addButton("exportsave", "Export", "16px Arial", textColor, 95, 270, function() {
+		stats.addButton("exportsave", "Export", "16px Arial", textColor, 95, 340, function() {
       templeModeSave = templeModeSave ? templeModeSave : undefined
 			let sf = btoa(JSON.stringify({savefile: savefile, templeMode: templeModeSave}))
 			var file = new Blob([sf], {type: "text/plain"})
@@ -2543,7 +2315,7 @@ function drawStats() {
 				window.URL.revokeObjectURL(url)
 			}, 0)
 		}, 75, 25)
-		stats.addButton("importsave", "Import", "16px Arial", textColor, 180, 270, function() {
+		stats.addButton("importsave", "Import", "16px Arial", textColor, 180, 340, function() {
 			function readFile(e) {
 				file = e.target.files[0]
 				if (!file) {
@@ -2705,7 +2477,7 @@ function drawStats() {
 		stats.drawButton("importsave")
 		stats.drawButton("exportsave")
 
-		stats.addButton("darkmode", "Invert Colors", "14px Arial", textColor, 10, 305, function() {
+		stats.addButton("darkmode", "Invert Colors", "14px Arial", textColor, 10, 375, function() {
 			if(textColor == "black") {
 				textColor = "white"
 				document.body.style.backgroundColor = "black"
@@ -2725,7 +2497,7 @@ function drawStats() {
       }
     }
     if(currentChallenge) {
-      stats.addButton("quit", "End Challenge", "14px Arial", textColor, 10, 340, function() {
+      stats.addButton("quit", "End Challenge", "14px Arial", textColor, 10, 410, function() {
         challenges[currentChallenge].inProgress = false
         challenges[currentChallenge].startTime = 0
 
@@ -2743,7 +2515,7 @@ function drawStats() {
       ctx.fillText("Runtime: " + hr + "h" + min + "m" + sec + "s", 120, 359)
     }
     if(templeRewards["templeMode"]) {
-      stats.addButton("quit", "Exit Temple Mode", "14px Arial", textColor, 10, 340, function() {
+      stats.addButton("quit", "Exit Temple Mode", "14px Arial", textColor, 10, 410, function() {
         templeModeSave = {
           currentStage: currentStage,
           currentArea: currentArea,
@@ -3490,7 +3262,7 @@ var main = function() {
 			totem_ydif = structures["totem"].totems[i].y - team[0].y
 			totem_dist = Math.sqrt(totem_xdif*totem_xdif + totem_ydif*totem_ydif)
 
-			if(totem_dist < 75 + 25*(structures["totem"].level - 1)) {
+			if(totem_dist < 75 + 25*structures["totem"].level) {
 				in_totem_range = true
 			}
 		}
