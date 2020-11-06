@@ -571,6 +571,8 @@ var currentArea = 1,
 	highestArea = 1,
 	currentStage = 1
 
+var templeModeSave
+
 savefile = localStorage.getItem("savefile")
 savefile = JSON.parse(savefile)
 if(savefile != undefined) {
@@ -2525,6 +2527,7 @@ function drawStats() {
 
 		}, 75, 25)
 		stats.addButton("exportsave", "Export", "16px Arial", textColor, 95, 270, function() {
+      templeModeSave = templeModeSave ? templeModeSave : undefined
 			let sf = btoa(JSON.stringify({savefile: savefile, templeMode: templeModeSave}))
 			var file = new Blob([sf], {type: "text/plain"})
 			var elm = document.createElement("a")
