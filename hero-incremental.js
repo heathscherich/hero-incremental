@@ -1518,9 +1518,9 @@ function drawBuildingsScreen() {
     			ctx.fillText("Owned: " + housing[h].owned, 190, 95)
     			ctx.fillText("Level: " + housing[h].level, 190, 115)
           ctx.font = "14px Arial"
-          ctx.fillText("Health: " + species[building].health * (1.5**rebirth["ally"].level) * (housing[building].level + 4)/5, 190, 135)
-          ctx.fillText("Attack: " + species[building].attack * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5, 190, 150)
-          ctx.fillText("Defence: " + species[building].defence * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5, 190, 165)
+          ctx.fillText("Health: " + (species[building].health * (1.5**rebirth["ally"].level)).toFixed(2) * (housing[building].level + 4)/5, 190, 135)
+          ctx.fillText("Attack: " + (species[building].attack * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5).toFixed(2), 190, 150)
+          ctx.fillText("Defence: " + (species[building].defence * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5).toFixed(2), 190, 165)
 
     			buildings.addButton("buy " + h, "Buy", "14px Arial", textColor, 205, 185, function(house) {
             keys = Object.keys(housing)
@@ -1566,8 +1566,8 @@ function drawBuildingsScreen() {
 			ctx.fillText("Owned: " + support["meteor"].meteors.length, 220, 95)
 			ctx.fillText("Level: " + support["meteor"].level, 220, 115)
       if(support["meteor"].meteors.length) {
-        ctx.fillText("Damage: " + 8*1.65**support["meteor"].level + 25*support["meteor"].level, 220, 135)
-        ctx.fillText("Avg Time: " + 10/support["meteor"].meteors.length + "s", 220, 155)
+        ctx.fillText("Damage: " + (8*1.65**support["meteor"].level + 25*support["meteor"].level).toFixed(2), 220, 135)
+        ctx.fillText("Avg Time: " + (10/support["meteor"].meteors.length).toFixed(2) + "s", 220, 155)
       }
 
 			buildings.addButton("buy meteor", "Buy", "14px Arial", textColor, 235, 185, function() {
@@ -1656,7 +1656,7 @@ function drawBuildingsScreen() {
 			ctx.fillText("Owned: " + support["chamber"].owned, 220, 95)
 			ctx.fillText("Level: " + support["chamber"].level, 220, 115)
       if(support["chamber"].owned) {
-        ctx.fillText("Slowdown: " + .85 - .065*support["chamber"].level, 220, 135)
+        ctx.fillText("Slowdown: " + (.85 - .065*support["chamber"].level).toFixed(2), 220, 135)
         ctx.fillText("Max radius: " + 50*support["chamber"].owned + 25, 220, 155)
         ctx.fillText("Generation: " + 10*support["chamber"].owned + "/s", 220, 175)
       }
@@ -1702,7 +1702,7 @@ function drawBuildingsScreen() {
 			ctx.fillText("Owned: " + structures["hall"].halls.length, 220, 95)
 			ctx.fillText("Level: " + structures["hall"].level, 220, 115)
       if(structures["hall"].halls.length) {
-        ctx.fillText("Heal: " + 25*1.85**(structures["hall"].level + 2), 220, 135)
+        ctx.fillText("Heal: " + (25*1.85**(structures["hall"].level + 2)).toFixed(2), 220, 135)
       }
 
 			buildings.addButton("buy hall", "Buy", "14px Arial", textColor, 235, 185, function() {
