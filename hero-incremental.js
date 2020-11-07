@@ -523,6 +523,10 @@ var support = {
 		meteors: [],
 		level: 0
 	},
+  "hallOfFame": {
+    owned: 0,
+    level: 0
+  },
 	"chamber": {
 		owned: 0,
 		level: 0
@@ -536,6 +540,10 @@ var structures = {
   },
   "hall": {
     halls: [],
+    level: 0
+  },
+  "substitute": {
+    substitutes: [],
     level: 0
   }
 }
@@ -627,7 +635,17 @@ if(savefile != undefined) {
       "hall": {
         halls: [],
         level: 0
+      },
+      "substitute": {
+        substitutes: [],
+        level: 0
       }
+    }
+  }
+  if(structures["substitute"] == undefined) {
+    structures["substitute"] = {
+      substitutes: [],
+      level: 0
     }
   }
   if(support["chamber"] == undefined) {
@@ -635,6 +653,17 @@ if(savefile != undefined) {
       owned: 0,
       level: 0,
       radius: 0
+    }
+  }
+  if(support["hallOfFame"] == undefined) {
+    support["hallOfFame"] = {
+      owned: 0,
+      level: 0
+    }
+  }
+  for(i=1; i<team.length; i++) {
+    if(team[i].rank == undefined) {
+      team[i].rank = 0
     }
   }
   if(inventory["gold ring"]) {
@@ -684,8 +713,8 @@ if(savefile != undefined) {
 
   if(templeRewards["templeMode"] == true) {
     templeModeSave = localStorage.getItem("templeMode")
-    templeModeSave = JSON.parse(templeModeSave)
     if(templeModeSave) {
+      templeModeSave = JSON.parse(templeModeSave)
       currentStage = templeModeSave.currentStage
       currentArea = templeModeSave.currentArea
       housing = templeModeSave.housing
@@ -694,6 +723,23 @@ if(savefile != undefined) {
       resources = templeModeSave.resources
       highestStages = templeModeSave.highestStages
       team = templeModeSave.team
+    }
+    if(structures["substitute"] == undefined) {
+      structures["substitute"] = {
+        substitutes: [],
+        level: 0
+      }
+    }
+    if(support["hallOfFame"] == undefined) {
+      support["hallOfFame"] = {
+        owned: 0,
+        level: 0
+      }
+    }
+    for(i=1; i<team.length; i++) {
+      if(team[i].rank == undefined) {
+        team[i].rank = 0
+      }
     }
     for(i=0; i<highestStages.length; i++) {
       if(highestStages[i] == 0) {
@@ -819,7 +865,7 @@ function loadArea(area) {
 	for(i=1; i<team.length; i++) {
 		team[i].x = 400 + 50*Math.cos(n*Math.PI)
 		team[i].y = 600 + 25*Math.ceil(n/2)
-		team[i].health = species[team[i].name].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
+		team[i].health = species[team[i].name].health * (1.5**rebirth["ally"].level) * ((housing[team[i].name].level + 5)/5) * (team[i].rank + 10/(support["hallOfFame"].level + 1))/(10/(support["hallOfFame"].level + 1))
 	}
 
 	for(i=0; i<structures["totem"].totems.length; i++) {
@@ -829,7 +875,14 @@ function loadArea(area) {
 		structures["totem"].totems[i].x = x
 		structures["totem"].totems[i].y = y
 	}
+  for(i=0; i<structures["substitute"].substitutes.length; i++) {
+    let x = 500*Math.random() + 150
+    let y = 400*Math.random() + 150
 
+    structures["substitute"].substitutes[i].x = x
+    structures["substitute"].substitutes[i].y = y
+    structures["substitute"].substitutes[i].health = 5*10**(structures["substitute"].level + 1)
+  }
   for(i=0; i<structures["hall"].halls.length; i++) {
 		let x = 500*Math.random() + 150
 		let y = 500*Math.random() + 150
@@ -1154,12 +1207,12 @@ function drawHero(hero) {
 function drawTeam(team) {
 	for(i=1; i<team.length; i++) {
 		ctx.fillStyle = "red"
-		ctx.font = "16px Arial"
+		ctx.font = (16 + 2*team[i].rank) + "px Arial"
 		ctx.fillText(species[team[i].name].symbol, team[i].x, team[i].y)
 
-		if(team[i].health < species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5) {
+		if(team[i].health < species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * ((housing[team[i].name].level + 5)/5) * (team[i].rank + 10/(support["hallOfFame"].level + 1))/(10/(support["hallOfFame"].level + 1))) {
 			let width = ctx.measureText(species[team[i]["name"]].symbol).width
-			ratio = team[i].health/(species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5)
+			ratio = team[i].health/(species[team[i]["name"]].health * (1.5**rebirth["ally"].level) * ((housing[team[i].name].level + 5)/5) * (team[i].rank + 10/(support["hallOfFame"].level + 1))/(10/(support["hallOfFame"].level + 1)))
 			ctx.fillStyle = textColor
 			ctx.strokeRect(team[i].x - 40 + width/2, team[i].y - 30, 80, 8)
 			ctx.fillStyle = "blue"
@@ -1512,15 +1565,15 @@ function drawBuildingsScreen() {
     			ctx.font = "24px Arial"
     			ctx.fillStyle = textColor
     			ctx.fillText(building_names[i], 190, 75)
-    			ctx.font = "16px Arial"
           width = ctx.measureText(building_names[i]).width
-    			ctx.fillText("Chance to recruit a " + h, 210 + width, 75)
+    			ctx.font = "16px Arial"
+    			ctx.fillText("Chance to recruit a " + h, 200 + width, 75)
     			ctx.fillText("Owned: " + housing[h].owned, 190, 95)
     			ctx.fillText("Level: " + housing[h].level, 190, 115)
           ctx.font = "14px Arial"
-          ctx.fillText("Health: " + (species[building].health * (1.5**rebirth["ally"].level) * (housing[building].level + 4)/5).toFixed(1), 190, 135)
-          ctx.fillText("Attack: " + (species[building].attack * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5).toFixed(1), 190, 150)
-          ctx.fillText("Defence: " + (species[building].defence * (1.25**rebirth["ally"].level) * (housing[building].level + 4)/5).toFixed(1), 190, 165)
+          ctx.fillText("Health: " + (species[building].health * (1.5**rebirth["ally"].level) * (housing[building].level + 5)/5).toFixed(1), 190, 135)
+          ctx.fillText("Attack: " + (species[building].attack * (1.25**rebirth["ally"].level) * (housing[building].level + 5)/5).toFixed(1), 190, 150)
+          ctx.fillText("Defence: " + (species[building].defence * (1.25**rebirth["ally"].level) * (housing[building].level + 5)/5).toFixed(1), 190, 165)
 
     			buildings.addButton("buy " + h, "Buy", "14px Arial", textColor, 205, 185, function(house) {
             keys = Object.keys(housing)
@@ -1540,8 +1593,8 @@ function drawBuildingsScreen() {
     				buildings.addButton("upgrade " + h, "Upgrade", "14px Arial", textColor, 320, 185, function(house) {
               keys = Object.keys(housing)
               i = keys.indexOf(house)
-    					if(resources["stone"] >= Math.ceil((5 * 10**i) * (housing[house].level + 1)**1.5)) {
-    						resources["stone"] -= Math.ceil((5 * 10**i) * (housing[house].level + 1)**1.5)
+    					if(resources["stone"] >= Math.ceil((5 * 10**i) * (housing[house].level + 1)**2)) {
+    						resources["stone"] -= Math.ceil((5 * 10**i) * (housing[house].level + 1)**2)
     						housing[house].level += 1
 
     						pageLoadChecker.buildings = false
@@ -1550,7 +1603,7 @@ function drawBuildingsScreen() {
     				}, 75, 20)
     				buildings.drawButton("upgrade " + h)
     				ctx.font = "14px Arial"
-    				ctx.fillText(Math.ceil((5 * 10**i) * (housing[h].level + 1)**1.5) + " Stone", 320, 218)
+    				ctx.fillText(Math.ceil((5 * 10**i) * (housing[h].level + 1)**2) + " Stone", 320, 218)
           }
         }
       }
@@ -1743,7 +1796,99 @@ function drawBuildingsScreen() {
 				ctx.fillText(1000 * 2**(structures["hall"].level + 2) + " Leaf", 350, 218)
 				ctx.fillText(1000 * 2**(structures["hall"].level + 2) + " Stone", 350, 230)
 			}
-		}
+		} else if(building == "hallOfFame") {
+      ctx.strokeRect(200, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = textColor
+			ctx.fillText("Hall of Fame", 220, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Kills increase ally rank", 365, 75)
+			ctx.fillText("Owned: " + support["hallOfFame"].owned, 220, 95)
+			ctx.fillText("Level: " + support["hallOfFame"].level, 220, 115)
+      if(support["hallOfFame"].owned) {
+        ctx.font = "14px Arial"
+        ctx.fillText("Max Rank: " + (support["hallOfFame"].owned + 1), 220, 135)
+        ctx.fillText("Stat boost: " + 10*(support["hallOfFame"].level + 1) + "%", 220, 150)
+      }
+
+			buildings.addButton("buy hallOfFame", "Buy", "14px Arial", textColor, 235, 185, function() {
+				if(resources["leaf"] >= 10**(support["hallOfFame"].owned + 4) && resources["stone"] >= 10**(support["hallOfFame"].owned + 4)) {
+					resources["leaf"] -= 10**(support["hallOfFame"].owned + 4)
+          resources["stone"] -= 10**(support["hallOfFame"].owned + 4)
+					support["hallOfFame"].owned += 1
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy hallOfFame")
+			ctx.font = "14px Arial"
+			ctx.fillText(10**(support["hallOfFame"].owned + 4) + " Leaf", 235, 218)
+      ctx.fillText(10**(support["hallOfFame"].owned + 4) + " Stone", 235, 230)
+
+			if(support["hallOfFame"].owned > 0) {
+				buildings.addButton("upgrade hallOfFame", "Upgrade", "14px Arial", textColor, 350, 185, function() {
+					if(resources["leaf"] >= 10**(support["hallOfFame"].level + 5) && resources["stone"] >= 10**(support["hallOfFame"].level + 5)) {
+						resources["leaf"] -= 10**(support["hallOfFame"].level + 5)
+            resources["stone"] -= 10**(support["hallOfFame"].level + 5)
+						support["hallOfFame"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+				}, 75, 20)
+				buildings.drawButton("upgrade hallOfFame")
+				ctx.font = "14px Arial"
+				ctx.fillText(10**(support["hallOfFame"].level + 5) + " Leaf", 350, 218)
+				ctx.fillText(10**(support["hallOfFame"].level + 5) + " Stone", 350, 230)
+      }
+		} else if(building == "substitute") {
+      ctx.strokeRect(200, 50, 350, 200)
+			ctx.font = "24px Arial"
+			ctx.fillStyle = textColor
+			ctx.fillText("Substitute", 220, 75)
+			ctx.font = "16px Arial"
+			ctx.fillText("Distracts enemies", 335, 75)
+			ctx.fillText("Owned: " + structures["substitute"].substitutes.length, 220, 95)
+			ctx.fillText("Level: " + structures["substitute"].level, 220, 115)
+      if(structures["substitute"].substitutes.length) {
+        ctx.font = "14px Arial"
+        ctx.fillText("Health: " + 5*10**(structures["substitute"].level + 1), 220, 135)
+      }
+
+			buildings.addButton("buy substitute", "Buy", "14px Arial", textColor, 235, 185, function() {
+				if(resources["stone"] >= 5*10**(structures["substitute"].substitutes.length + 1)**2) {
+          resources["stone"] -= 5*10**(structures["substitute"].substitutes.length + 1)**2
+					structures["substitute"].substitutes.push({
+            name: "substitute",
+            x: 500*Math.random() + 150,
+            y: 400*Math.random() + 150,
+            health: 5*10**(structures["substitute"].substitutes.level + 1)
+          })
+
+					pageLoadChecker.buildings = false
+					drawBuildingsScreen()
+				}
+			}, 75, 20)
+			buildings.drawButton("buy substitute")
+			ctx.font = "14px Arial"
+      ctx.fillText(5*10**(structures["substitute"].substitutes.length + 1)**2 + " Stone", 235, 218)
+
+			if(structures["substitute"].substitutes.length > 0) {
+				buildings.addButton("upgrade substitute", "Upgrade", "14px Arial", textColor, 350, 185, function() {
+					if(resources["stone"] >= 5*10**(structures["substitute"].level + 2)) {
+            resources["stone"] -= 5*10**(structures["substitute"].level + 2)
+						structures["substitute"].level += 1
+
+						pageLoadChecker.buildings = false
+						drawBuildingsScreen()
+					}
+			  }, 75, 20)
+			  buildings.drawButton("upgrade substitute")
+			  ctx.font = "14px Arial"
+			  ctx.fillText(5*10**(structures["substitute"].level + 2) + " Stone", 350, 218)
+      }
+    }
 	}
 
 	if(!pageLoadChecker.buildings) {
@@ -1798,8 +1943,10 @@ function drawBuildingsScreen() {
 		if(buildingsSubmenus.showHouses) {
       buildings.removeButton("meteor")
 			buildings.removeButton("chamber")
+      buildings.removeButton("hallOfFame")
       buildings.removeButton("totem")
 			buildings.removeButton("hall")
+      buildings.removeButton("substitute")
 			showBuildingDetails(buildingsSubmenus.showHouses)
 		} else if(buildingsSubmenus.showSupport) {
       for(i in housing) {
@@ -1807,6 +1954,7 @@ function drawBuildingsScreen() {
       }
       buildings.removeButton("totem")
 			buildings.removeButton("hall")
+      buildings.removeButton("substitute")
 			showBuildingDetails(buildingsSubmenus.showSupport)
 		} else if(buildingsSubmenus.showStructures) {
       for(i in housing) {
@@ -1814,6 +1962,7 @@ function drawBuildingsScreen() {
       }
       buildings.removeButton("meteor")
 			buildings.removeButton("chamber")
+      buildings.removeButton("hallOfFame")
       showBuildingDetails(buildingsSubmenus.showStructures)
     }
 
@@ -1857,6 +2006,16 @@ function drawBuildingsScreen() {
         ctx.strokeRect(85, 50, 115, 200)
         buildings.drawButton("chamber")
       }
+      if(highestArea >= 5) {
+        buildings.addButton("hallOfFame", "Hall of Fame", "16px Arial", textColor, 85, 110, function() {
+          ctx.clearRect(0, 0, 800, 800)
+          pageLoadChecker.buildings = false
+          buildingsSubmenus.showSupport = "hallOfFame"
+          showBuildingDetails("hallOfFame")
+        }, 115, 30)
+        ctx.strokeRect(85, 50, 115, 200)
+        buildings.drawButton("hallOfFame")
+      }
 		} else if(buildingsSubmenus.showStructures) {
       buildings.addButton("totem", "Speed Totem", "16px Arial", textColor, 85, 50, function() {
 				ctx.clearRect(0, 0, 800, 800)
@@ -1867,8 +2026,17 @@ function drawBuildingsScreen() {
 			ctx.strokeRect(85, 50, 115, 200)
       buildings.drawButton("totem")
 
+      if(highestArea >= 2) {
+        buildings.addButton("substitute", "Substitute", "16px Arial", textColor, 85, 80, function() {
+          ctx.clearRect(0, 0, 800, 800)
+          pageLoadChecker.buildings = false
+          buildingsSubmenus.showStructures = "substitute"
+          showBuildingDetails("substitute")
+        }, 115, 30)
+        buildings.drawButton("substitute")
+      }
       if(highestArea >= 3) {
-        buildings.addButton("hall", "Mess Hall", "16px Arial", textColor, 85, 80, function() {
+        buildings.addButton("hall", "Mess Hall", "16px Arial", textColor, 85, 110, function() {
           ctx.clearRect(0, 0, 800, 800)
           pageLoadChecker.buildings = false
           buildingsSubmenus.showStructures = "hall"
@@ -2332,8 +2500,19 @@ function drawStats() {
           sf = JSON.parse(sf)
           templeModeSave = sf["templeMode"]
           sf = sf["savefile"]
-          localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
+          if(templeModeSave) {
+            localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
+          } else {
+            localStorage.removeItem("templeMode")
+          }
 					localStorage.setItem("savefile", JSON.stringify(sf))
+
+          if(battle.buttons["area 7"]) {
+            battle.removeButton("area 7")
+          }
+          if(bolts.length) {
+            bolts = []
+          }
 					if(sf != undefined) {
             challenges = sf.challenges
 						textColor = sf.textColor
@@ -2386,7 +2565,17 @@ function drawStats() {
                 "hall": {
                   halls: [],
                   level: 0
+                },
+                "substitute": {
+                  substitutes: [],
+                  level: 0
                 }
+              }
+            }
+            if(structures["substitute"] == undefined) {
+              structures["substitute"] = {
+                substitutes: [],
+                level: 0
               }
             }
             if(support["chamber"] == undefined) {
@@ -2394,6 +2583,17 @@ function drawStats() {
                 owned: 0,
                 level: 0,
                 radius: 0
+              }
+            }
+            if(support["hallOfFame"] == undefined) {
+              support["hallOfFame"] = {
+                owned: 0,
+                level: 0
+              }
+            }
+            for(i=1; i<team.length; i++) {
+              if(team[i].rank == undefined) {
+                team[i].rank = 0
               }
             }
             if(inventory["gold ring"]) {
@@ -2443,8 +2643,8 @@ function drawStats() {
 
             if(templeRewards["templeMode"] == true) {
               templeModeSave = localStorage.getItem("templeMode")
-              templeModeSave = JSON.parse(templeModeSave)
               if(templeModeSave) {
+                templeModeSave = JSON.parse(templeModeSave)
                 currentStage = templeModeSave.currentStage
                 currentArea = templeModeSave.currentArea
                 housing = templeModeSave.housing
@@ -2453,6 +2653,23 @@ function drawStats() {
                 resources = templeModeSave.resources
                 highestStages = templeModeSave.highestStages
                 team = templeModeSave.team
+              }
+              if(structures["substitute"] == undefined) {
+                structures["substitute"] = {
+                  substitutes: [],
+                  level: 0
+                }
+              }
+              if(support["hallOfFame"] == undefined) {
+                support["hallOfFame"] = {
+                  owned: 0,
+                  level: 0
+                }
+              }
+              for(i=1; i<team.length; i++) {
+                if(team[i].rank == undefined) {
+                  team[i].rank = 0
+                }
               }
               for(i=0; i<highestStages.length; i++) {
   							if(highestStages[i] == 0) {
@@ -2465,6 +2682,7 @@ function drawStats() {
   						}
             }
 					}
+          spawnEnemies()
 					document.body.removeChild(elm)
           pageLoadChecker.stats = false
           drawStats()
@@ -2721,8 +2939,9 @@ function drawTemple() {
         templeRewards["templeMode"] = true
 
         templeModeSave = localStorage.getItem("templeMode")
-        templeModeSave = JSON.parse(templeModeSave)
         if(templeModeSave) {
+          templeModeSave = JSON.parse(templeModeSave)
+
           currentStage = templeModeSave.currentStage
           currentArea = templeModeSave.currentArea
           housing = templeModeSave.housing
@@ -2731,7 +2950,23 @@ function drawTemple() {
           resources = templeModeSave.resources
           highestStages = templeModeSave.highestStages
           team = templeModeSave.team
-
+          for(i=1; i<team.length; i++) {
+            if(team[i].rank == undefined) {
+              team[i].rank = 0
+            }
+          }
+          if(structures["substitute"] == undefined) {
+            structures["substitute"] = {
+              substitutes: [],
+              level: 0
+            }
+          }
+          if(support["hallOfFame"] == undefined) {
+            support["hallOfFame"] = {
+              owned: 0,
+              level: 0
+            }
+          }
           for(i=0; i<highestStages.length; i++) {
             if(highestStages[i] == 0) {
               highestArea = i
@@ -2785,11 +3020,19 @@ function drawTemple() {
           	"chamber": {
           		owned: 0,
           		level: 0
-          	}
+          	},
+            "hallOfFame": {
+              owned: 0,
+              level: 0
+            }
           }
           structures = {
             "totem": {
               totems: [],
+              level: 0
+            },
+            "substitute": {
+              substitutes: [],
               level: 0
             },
             "hall": {
@@ -2876,6 +3119,26 @@ function drawMessHalls() {
 	}
 }
 
+function drawSubstitutes() {
+  for(i=0; i<structures["substitute"].substitutes.length; i++) {
+    let sub = structures["substitute"].substitutes[i]
+    ctx.font = "16px Arial"
+    ctx.fillStyle = "grey"
+    ctx.fillText("o", sub.x + 2, sub.y - 7)
+    ctx.fillText("_", sub.x + 2, sub.y - 8)
+    ctx.fillText("| |", sub.x, sub.y + 8)
+
+    if(sub.health < 5*10**(structures["substitute"].level + 1)) {
+			let width = 4
+			ratio = sub.health/(5*10**(structures["substitute"].level + 1))
+			ctx.fillStyle = textColor
+			ctx.strokeRect(sub.x - 40 + width/2, sub.y - 30, 80, 8)
+			ctx.fillStyle = "blue"
+			ctx.fillRect(sub.x - 40 + width/2, sub.y - 30, 80*ratio, 8)
+		}
+  }
+}
+
 function spawnMeteor(x, y, radius) {
 	ctx.font = radius + "px Courier New"
 	ctx.fillStyle = "red"
@@ -2906,6 +3169,7 @@ var main = function() {
 			drawTeam(team)
 			drawEnemies(enemies)
 			drawTotems()
+      drawSubstitutes()
       drawMessHalls()
 			if(bolts.length){
 				drawBolt()
@@ -3034,7 +3298,8 @@ var main = function() {
 				housing[name].filled += 1
 				messages.push({text: "A " + name + " joined you", timeout: Date.now()/1000 + 3})
 				team.push({name: name,
-										health: species[name].health * (1.5**rebirth["ally"].level) * (housing[name].level + 4)/5,
+                    rank: 0,
+										health: species[name].health * (1.5**rebirth["ally"].level) * (housing[name].level + 5)/5,
 										defence: species[name].defence,
 										cooldown: Date.now()/1000,
                     full: false,
@@ -3207,6 +3472,14 @@ var main = function() {
 
 					structures["totem"].totems[i].x = x
 					structures["totem"].totems[i].y = y
+				}
+        for(i=0; i<structures["substitute"].substitutes.length; i++) {
+					let x = 500*Math.random() + 150
+					let y = 400*Math.random() + 150
+
+					structures["substitute"].substitutes[i].x = x
+					structures["substitute"].substitutes[i].y = y
+          structures["substitute"].substitutes[i].health = 5*10**(structures["substitute"].level + 1)
 				}
         for(i=0; i<structures["hall"].halls.length; i++) {
       		let x = 500*Math.random() + 150
@@ -3437,7 +3710,7 @@ var main = function() {
         }
       }
 
-      let total_health = species[team[i].name].health * (1.5**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
+      let total_health = species[team[i].name].health * (1.5**rebirth["ally"].level) * ((housing[team[i].name].level + 5)/5) * (team[i].rank + 10/(support["hallOfFame"].level + 1))/(10/(support["hallOfFame"].level + 1))
       if(!team[i].full && team[i].health <= .8*total_health && closest_hall_dist < closest_dist) {
         xdif = structures["hall"].halls[closest_hall].x - team[i].x
   			ydif = structures["hall"].halls[closest_hall].y - team[i].y
@@ -3469,7 +3742,7 @@ var main = function() {
   					movey = goalmove*Math.sin(angle)
 
             if(Date.now()/1000 > team[i].cooldown){
-    					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
+    					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * ((housing[team[i].name].level + 5)/5) * (team[i].rank + 10/(support["hallOfFame"].level + 1))/(10/(support["hallOfFame"].level + 1))
               if(in_hero_range) {
                 damage *= 5
               }
@@ -3491,7 +3764,7 @@ var main = function() {
   				team[i].y += movey
   			} else {
   				if(Date.now()/1000 > team[i].cooldown){
-  					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * (housing[team[i].name].level + 4)/5
+  					damage = species[team[i].name].attack * (1.25**rebirth["ally"].level) * ((housing[team[i].name].level + 5)/5) * (team[i].rank + 10/(support["hallOfFame"].level + 1))/(10/(support["hallOfFame"].level + 1))
             if(in_hero_range) {
               damage *= 5
             }
@@ -3510,6 +3783,11 @@ var main = function() {
         }
 			}
 			if(enemies[closest_enemy].health <= 0) {
+        if(support["hallOfFame"].owned) {
+          if(team[i].rank < support["hallOfFame"].owned + 1) {
+            team[i].rank += 1
+          }
+        }
 				handleDeath(closest_enemy)
 			}
 		}
@@ -3517,11 +3795,16 @@ var main = function() {
 		for(i=0; i<enemies.length; i++) {
 			var closest_dist = 2000
 			var closest_enemy = 0
-      for(j=0; j<team.length; j++){
-				xdif = enemies[i].x - team[j].x
-				ydif = enemies[i].y - team[j].y
+      var attackables = team.concat(structures["substitute"].substitutes)
+      for(j=0; j<attackables.length; j++){
+				xdif = enemies[i].x - attackables[j].x
+				ydif = enemies[i].y - attackables[j].y
 				dist = Math.sqrt(xdif*xdif + ydif*ydif)
-				if(dist < closest_dist) {
+        if(dist < 25 && attackables[j].name == "substitute") {
+          closest_dist = dist
+          closest_enemy = j
+          break
+        } else if(dist < closest_dist) {
 					closest_dist = dist
 					closest_enemy = j
 				}
@@ -3590,8 +3873,8 @@ var main = function() {
 				if(enemies[i].cooldown == undefined) {
 					enemies[i].cooldown = Date.now()/1000 + 1/slow_multiplier/(1.1**enemies[i].prestige)/devmode
 				}
-				xdif = team[closest_enemy].x - enemies[i].x
-				ydif = team[closest_enemy].y - enemies[i].y
+				xdif = attackables[closest_enemy].x - enemies[i].x
+				ydif = attackables[closest_enemy].y - enemies[i].y
         dist = Math.sqrt(xdif*xdif + ydif*ydif)
 				angle = Math.atan2(ydif, xdif)
 				movex = Math.cos(angle)*(1.05**enemies[i].prestige)*slow_multiplier*devmode
@@ -3620,18 +3903,20 @@ var main = function() {
 							defence += team[0].helmet ? inventory[team[0].helmet].defence : 0
 							defence += team[0].torso ? inventory[team[0].torso].defence : 0
 							defence += team[0].legs ? inventory[team[0].legs].defence : 0
+						} else if (closest_enemy < team.length) {
+							defence = team[closest_enemy].defence * (1.25**rebirth["ally"].level) * ((housing[team[closest_enemy].name].level + 5)/5) * (team[closest_enemy].rank + 10/(support["hallOfFame"].level + 1))/(10/(support["hallOfFame"].level + 1))
 						} else {
-							defence = team[closest_enemy].defence * (1.25**rebirth["ally"].level) * (housing[team[closest_enemy].name].level + 4)/5
-						}
+              defence = 0
+            }
 						def_ratio = calc_def_ratio(defence)
 						damage = damage/(100/(100-def_ratio))
-						team[closest_enemy].health -= damage
+						attackables[closest_enemy].health -= damage
 						enemies[i].cooldown = Date.now()/1000 + 1/(1.1**enemies[i].prestige)/devmode
 					}
 
-					if(team[closest_enemy].health <= 0) {
-						team[closest_enemy].health = 0
-						if(team[closest_enemy]["name"] == "hero") {
+					if(attackables[closest_enemy].health <= 0) {
+						attackables[closest_enemy].health = 0
+						if(attackables[closest_enemy]["name"] == "hero") {
               if(!challenges["1HP"].inProgress) {
                 team[0].health = 100
 
@@ -3643,7 +3928,11 @@ var main = function() {
               }
 
 							loadArea(currentArea)
-						} else {
+						} else if(attackables[closest_enemy]["name"] == "substitute") {
+              structures["substitute"].substitutes[closest_enemy - team.length].x = -1000
+              structures["substitute"].substitutes[closest_enemy - team.length].y = -1000
+              attackables.splice(closest_enemy, 1)
+            } else {
 							for(j=0; j<enemies.length; j++) {
 								if(enemies[j].targetid == closest_enemy) {
 									enemies[j].targetid = undefined
@@ -3651,6 +3940,7 @@ var main = function() {
 							}
 							housing[team[closest_enemy].name].filled -= 1
 							team.splice(closest_enemy, 1)
+              attackables.splice(closest_enemy, 1)
 						}
 					}
 				}
