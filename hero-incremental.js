@@ -713,7 +713,7 @@ if(savefile != undefined) {
 
   if(templeRewards["templeMode"] == true) {
     templeModeSave = localStorage.getItem("templeMode")
-    if(templeModeSave) {
+    if(templeModeSave != "undefined") {
       templeModeSave = JSON.parse(templeModeSave)
       currentStage = templeModeSave.currentStage
       currentArea = templeModeSave.currentArea
@@ -2500,7 +2500,7 @@ function drawStats() {
           sf = JSON.parse(sf)
           templeModeSave = sf["templeMode"]
           sf = sf["savefile"]
-          if(templeModeSave) {
+          if(templeModeSave != "undefined") {
             localStorage.setItem("templeMode", JSON.stringify(templeModeSave))
           } else {
             localStorage.removeItem("templeMode")
@@ -2643,7 +2643,7 @@ function drawStats() {
 
             if(templeRewards["templeMode"] == true) {
               templeModeSave = localStorage.getItem("templeMode")
-              if(templeModeSave) {
+              if(templeModeSave != "undefined") {
                 templeModeSave = JSON.parse(templeModeSave)
                 currentStage = templeModeSave.currentStage
                 currentArea = templeModeSave.currentArea
@@ -2939,7 +2939,7 @@ function drawTemple() {
         templeRewards["templeMode"] = true
 
         templeModeSave = localStorage.getItem("templeMode")
-        if(templeModeSave) {
+        if(templeModeSave != "undefined") {
           templeModeSave = JSON.parse(templeModeSave)
 
           currentStage = templeModeSave.currentStage
