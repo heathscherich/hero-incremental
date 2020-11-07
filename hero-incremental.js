@@ -2793,7 +2793,18 @@ function drawStats() {
         	} else if(textColor == "black") {
             document.body.style.backgroundColor = "white"
           }
-
+          if(structures["substitute"] == undefined) {
+            structures["substitute"] = {
+              substitutes: [],
+              level: 0
+            }
+          }
+          if(support["hallOfFame"] == undefined) {
+            support["hallOfFame"] = {
+              owned: 0,
+              level: 0
+            }
+          }
         	for(i=0; i<highestStages.length; i++) {
         		if(highestStages[i] == 0) {
         			highestArea = i
