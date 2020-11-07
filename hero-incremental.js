@@ -974,11 +974,19 @@ function rebirthResets() {
       owned: 0,
       level: 0,
       radius: 0
+    },
+    "hallOfFame": {
+      owned: 0,
+      level: 0
     }
 	}
   structures = {
     "totem": {
       totems: [],
+      level: 0
+    },
+    "substitute": {
+      substitutes: [],
       level: 0
     },
     "hall": {
@@ -1115,11 +1123,19 @@ function templeResets() {
       owned: 0,
       level: 0,
       radius: 0
+    },
+    "hallOfFame": {
+      owned: 0,
+      level: 0
     }
 	}
   structures = {
     "totem": {
       totems: [],
+      level: 0
+    },
+    "substitute": {
+      substitutes: [],
       level: 0
     },
     "hall": {
