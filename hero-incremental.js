@@ -3956,6 +3956,11 @@ var main = function() {
 
 							loadArea(currentArea)
 						} else if(attackables[closest_enemy]["name"] == "substitute") {
+              for(j=0; j<enemies.length; j++) {
+								if(enemies[j].targetid == closest_enemy) {
+									enemies[j].targetid = undefined
+								}
+							}
               structures["substitute"].substitutes[closest_enemy - team.length].x = -1000
               structures["substitute"].substitutes[closest_enemy - team.length].y = -1000
               attackables.splice(closest_enemy, 1)
