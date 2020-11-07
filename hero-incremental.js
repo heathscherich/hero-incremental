@@ -3113,16 +3113,37 @@ function drawTemple() {
 function drawBolt() {
 	ctx.font = "16px Arial"
 	symbol = ""
-	if(inventory[team[0].weapon].type == "bow"){
-		ctx.fillStyle = textColor
-		symbol = "|"
-	} else if(inventory[team[0].weapon].type == "magic"){
-		ctx.fillStyle = "red"
-		symbol = "o"
-	} else {
-		bolts = []
-	}
+
 	for (i=0; i<bolts.length; i++) {
+    if(inventory[team[0].weapon].type == "bow") {
+      if(inventory[team[0].weapon].type == "bow"){
+    		ctx.fillStyle = textColor
+    		if(bolts[i].angle < -7*Math.PI/8) {
+          symbol = "_"
+        } else if(bolts[i].angle < -5*Math.PI/8) {
+          symbol = "\\"
+        } else if(bolts[i].angle < -3*Math.PI/8) {
+          symbol = "|"
+        } else if(bolts[i].angle < -Math.PI/8) {
+          symbol = "/"
+        } else if(bolts[i].angle < Math.PI/8) {
+          symbol = "_"
+        } else if(bolts[i].angle < 3*Math.PI/8) {
+          symbol = "\\"
+        } else if(bolts[i].angle < 5*Math.PI/8) {
+          symbol = "|"
+        } else if(bolts[i].angle < 7*Math.PI/8){
+          symbol = "/"
+        } else {
+          symbol = "_"
+        }
+    	} else if(inventory[team[0].weapon].type == "magic"){
+    		ctx.fillStyle = "red"
+    		symbol = "o"
+    	} else {
+    		bolts = []
+    	}
+    }
 		ctx.fillText(symbol, bolts[i].x, bolts[i].y)
 	}
 }
