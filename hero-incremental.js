@@ -2895,6 +2895,7 @@ function drawTemple() {
 		temple.drawButton("ring")
 		temple.drawButton("aura")
 		temple.drawButton("wisdom")
+    }
 
     if(!(templeRewards["ring"] && templeRewards["aura"] && templeRewards["wisdom"])) {
       ctx.font = "16px Arial"
@@ -3107,7 +3108,6 @@ function drawTemple() {
         ctx.fillText("You beat Hero Incremental! Congratulations!!", 10, 400)
       }
     }
-	}
 }
 
 function drawBolt() {
@@ -3115,10 +3115,9 @@ function drawBolt() {
 	symbol = ""
 
 	for (i=0; i<bolts.length; i++) {
-    if(inventory[team[0].weapon].type == "bow") {
-      if(inventory[team[0].weapon].type == "bow"){
-    		ctx.fillStyle = textColor
-    		if(bolts[i].angle < -7*Math.PI/8) {
+    if(inventory[team[0].weapon].type == "bow"){
+    	ctx.fillStyle = textColor
+    	if(bolts[i].angle < -7*Math.PI/8) {
           symbol = "_"
         } else if(bolts[i].angle < -5*Math.PI/8) {
           symbol = "\\"
@@ -3137,12 +3136,11 @@ function drawBolt() {
         } else {
           symbol = "_"
         }
-    	} else if(inventory[team[0].weapon].type == "magic"){
-    		ctx.fillStyle = "red"
-    		symbol = "o"
-    	} else {
-    		bolts = []
-    	}
+    } else if(inventory[team[0].weapon].type == "magic"){
+        ctx.fillStyle = "red"
+        symbol = "o"
+    } else {
+        bolts = []
     }
 		ctx.fillText(symbol, bolts[i].x, bolts[i].y)
 	}
