@@ -3626,13 +3626,14 @@ var main = function() {
 						let temp = team[0].weapon
 						team[0].weapon = team[0].tempWeapon
 						team[0].tempWeapon = temp
-					}
-					bolts.push({
-						x: team[0].x,
-						y: team[0].y,
-						targetid: closest_enemy,
-						angle: 0
-					})
+					} else {
+            bolts.push({
+              x: team[0].x,
+              y: team[0].y,
+              targetid: closest_enemy,
+              angle: 0
+            })
+          }
 				}
 				if(inventory[team[0].weapon].type == "sword"){
 					damage = team[0].attack + inventory[team[0].weapon].attack
